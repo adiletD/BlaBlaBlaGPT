@@ -169,12 +169,16 @@ export class AnthropicProvider extends BaseLLMProvider {
       'refinement'
     )}\n\nOriginal prompt: "${originalPrompt}"\n\nQuestions and answers:\n`;
     
-    const answerMap = new Map(answers.map(a => [a.questionId, a.answer]));
+    const answerMap = new Map(answers.map(a => [a.questionId, a.response]));
     
     questions.forEach(q => {
       const answer = answerMap.get(q.id);
       if (answer !== undefined) {
-        conversation += `- ${q.text}: ${answer ? 'Yes' : 'No'}\n`;
+        if (typeof answer === 'boolean') {
+          conversation += `- ${q.text}: ${answer ? 'Yes' : 'No'}\n`;
+        } else {
+          conversation += `- ${q.text}: ${answer}\n`;
+        }
       }
     });
 

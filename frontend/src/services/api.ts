@@ -205,7 +205,7 @@ export const apiService = {
     }
   },
 
-  async answerQuestion(sessionId: string, questionId: string, response: boolean): Promise<Answer> {
+  async answerQuestion(sessionId: string, questionId: string, response: boolean | string): Promise<Answer> {
     try {
       const apiResponse = await api.post<ApiResponse<Answer>>('/prompts/answer-question', {
         sessionId,

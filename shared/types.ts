@@ -24,7 +24,7 @@ export interface Question {
 export interface Answer {
   id: string;
   questionId: string;
-  response: boolean;
+  response: boolean | string;
   timestamp: Date;
 }
 

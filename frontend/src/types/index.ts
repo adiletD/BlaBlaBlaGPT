@@ -16,7 +16,7 @@ export interface AppState {
 export interface QuestionCardProps {
   question: Question;
   answer?: Answer;
-  onAnswer: (response: boolean) => void;
+  onAnswer: (response: boolean | string) => void;
   isAnswered: boolean;
   disabled?: boolean;
 }

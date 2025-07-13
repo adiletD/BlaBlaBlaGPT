@@ -5,15 +5,18 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useRefinementStore } from '../store/refinementStore';
 import { apiService } from '../services/api';
+import { SingleQuestionView } from './SingleQuestionView';
 
 export const PromptQuestionLayout: React.FC = () => {
   const { 
     session, 
     questions, 
     answers, 
-    updateAnswer, 
     setCurrentStep,
     setSession,
+    setAnswers,
+    setQuestions,
+    setCurrentQuestionIndex,
     selectedProvider,
     selectedModel 
   } = useRefinementStore();
@@ -33,9 +36,14 @@ export const PromptQuestionLayout: React.FC = () => {
       });
     },
     onSuccess: (data) => {
-      setSession({ ...session!, refinedPrompt: data.refinedPrompt });
-      setCurrentStep('results');
-      toast.success('Prompt refined successfully!');
+      // Update session with refined prompt and new questions
+      setSession(data.session);
+      setQuestions(data.session.questions);
+      // Clear previous answers to start fresh with new questions
+      setAnswers([]);
+      // Reset to first question
+      setCurrentQuestionIndex(0);
+      toast.success('Prompt refined successfully! New questions generated.');
     },
     onError: (error: any) => {
       const message = error.response?.data?.message || error.message || 'Failed to refine prompt';
@@ -43,9 +51,7 @@ export const PromptQuestionLayout: React.FC = () => {
     },
   });
 
-  const handleQuestionAnswer = (questionId: string, response: boolean) => {
-    updateAnswer(questionId, response);
-  };
+
 
   const handleEditPrompt = () => {
     setIsEditingPrompt(true);
@@ -158,10 +164,26 @@ export const PromptQuestionLayout: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
-              <p className="text-gray-700 whitespace-pre-wrap">
-                {session?.originalPrompt}
-              </p>
+            <div className="space-y-4">
+              {session?.refinedPrompt && (
+                <div className="bg-green-50 rounded-lg p-6 min-h-[200px] border border-green-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-green-600 font-medium">✨ Refined Prompt</span>
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Latest</span>
+                  </div>
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {session.refinedPrompt}
+                  </p>
+                </div>
+              )}
+              <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-gray-600 font-medium">📝 Original Prompt</span>
+                </div>
+                <p className="text-gray-700 whitespace-pre-wrap">
+                  {session?.originalPrompt}
+                </p>
+              </div>
             </div>
           )}
 
@@ -181,84 +203,33 @@ export const PromptQuestionLayout: React.FC = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="bg-white rounded-2xl shadow-lg p-8"
+          className="space-y-6"
         >
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">
-              Questions ({answers.length}/{questions.length})
-            </h3>
-            <div className="text-sm text-gray-500">
-              {allQuestionsAnswered ? '✅ All answered' : 'Answer all to continue'}
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Questions ({answers.length}/{questions.length})
+              </h3>
+              <div className="text-sm text-gray-500">
+                {allQuestionsAnswered ? '✅ All answered' : `${answers.length} of ${questions.length} answered`}
+              </div>
             </div>
+            
+            <SingleQuestionView />
           </div>
 
-          <div className="space-y-4 max-h-96 overflow-y-auto">
-            {questions.map((question, index) => {
-              const answer = answers.find(a => a.questionId === question.id);
-              const isAnswered = !!answer;
-              
-              return (
-                <motion.div
-                  key={question.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 * index }}
-                  className={`border rounded-lg p-4 ${
-                    isAnswered 
-                      ? 'border-green-200 bg-green-50' 
-                      : 'border-gray-200 bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-start space-x-3">
-                    <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                      isAnswered 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {index + 1}
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="text-sm font-medium text-gray-900 mb-1">
-                        {question.text}
-                      </h4>
-                      {question.explanation && (
-                        <p className="text-xs text-gray-600 mb-3">
-                          {question.explanation}
-                        </p>
-                      )}
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleQuestionAnswer(question.id, true)}
-                          className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                            answer?.response === true
-                              ? 'bg-green-600 text-white'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={() => handleQuestionAnswer(question.id, false)}
-                          className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                            answer?.response === false
-                              ? 'bg-red-600 text-white'
-                              : 'bg-red-100 text-red-700 hover:bg-red-200'
-                          }`}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="mb-4 text-center">
+              <p className="text-sm text-gray-600">
+                {allQuestionsAnswered 
+                  ? "All questions answered! Ready to generate your refined prompt."
+                  : "You can generate a refined prompt at any time, even with partial answers."
+                }
+              </p>
+            </div>
             <button
               onClick={handleGenerateRefinedPrompt}
-              disabled={!allQuestionsAnswered || refinePromptMutation.isPending}
+              disabled={refinePromptMutation.isPending}
               className="w-full btn btn-primary px-6 py-3 text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {refinePromptMutation.isPending ? (

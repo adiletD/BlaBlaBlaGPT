@@ -47,7 +47,7 @@ export class PromptRefinementService {
     return await sessionStorage.getSession(sessionId);
   }
 
-  async answerQuestion(sessionId: string, questionId: string, response: boolean): Promise<Answer> {
+  async answerQuestion(sessionId: string, questionId: string, response: boolean | string): Promise<Answer> {
     const session = await sessionStorage.getSession(sessionId);
     if (!session) {
       throw new Error(`Session ${sessionId} not found`);
@@ -111,11 +111,15 @@ export class PromptRefinementService {
       }
     );
 
+    // Generate new questions based on the refined prompt
+    const newQuestions = await this.generateQuestions(refinedPrompt, llmProvider, model);
+
     // Update session
     await sessionStorage.updateSession(sessionId, {
       refinedPrompt,
       answers,
-      status: 'completed',
+      questions: newQuestions,
+      status: 'refining', // Keep status as refining for continuous refinement
     });
 
     const updatedSession = await sessionStorage.getSession(sessionId);

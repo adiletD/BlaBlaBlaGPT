@@ -24,7 +24,7 @@ export interface Question {
 export interface Answer {
   id: string;
   questionId: string;
-  response: boolean;
+  response: boolean | string;
   timestamp: Date;
 }
 
@@ -66,7 +66,7 @@ export interface CreateSessionResponse {
 export interface AnswerQuestionRequest {
   sessionId: string;
   questionId: string;
-  response: boolean;
+  response: boolean | string;
 }
 
 export interface RefinePromptRequest {

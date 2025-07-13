@@ -9,6 +9,7 @@ interface RefinementState {
   selectedModel?: string;
   questions: Question[];
   answers: Answer[];
+  currentQuestionIndex: number;
   isLoading: boolean;
   error: string | null;
 }
@@ -21,7 +22,10 @@ interface RefinementActions {
   setQuestions: (questions: Question[]) => void;
   setAnswers: (answers: Answer[]) => void;
   addAnswer: (answer: Answer) => void;
-  updateAnswer: (questionId: string, response: boolean) => void;
+  updateAnswer: (questionId: string, response: boolean | string) => void;
+  setCurrentQuestionIndex: (index: number) => void;
+  nextQuestion: () => void;
+  previousQuestion: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;
@@ -36,6 +40,7 @@ const initialState: RefinementState = {
   selectedModel: undefined,
   questions: [],
   answers: [],
+  currentQuestionIndex: 0,
   isLoading: false,
   error: null,
 };
@@ -65,6 +70,19 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
         set((state) => ({
           answers: [...state.answers.filter((a) => a.questionId !== questionId), newAnswer],
         }));
+      },
+      setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
+      nextQuestion: () => {
+        const { currentQuestionIndex, questions } = get();
+        if (currentQuestionIndex < questions.length - 1) {
+          set({ currentQuestionIndex: currentQuestionIndex + 1 });
+        }
+      },
+      previousQuestion: () => {
+        const { currentQuestionIndex } = get();
+        if (currentQuestionIndex > 0) {
+          set({ currentQuestionIndex: currentQuestionIndex - 1 });
+        }
       },
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
