@@ -1,0 +1,100 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { RefinementSession, Question, Answer } from '../types';
+
+interface RefinementState {
+  session: RefinementSession | null;
+  currentStep: 'input' | 'questions' | 'results';
+  selectedProvider: string;
+  selectedModel?: string;
+  questions: Question[];
+  answers: Answer[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+interface RefinementActions {
+  setSession: (session: RefinementSession | null) => void;
+  setCurrentStep: (step: 'input' | 'questions' | 'results') => void;
+  setSelectedProvider: (provider: string) => void;
+  setSelectedModel: (model?: string) => void;
+  setQuestions: (questions: Question[]) => void;
+  setAnswers: (answers: Answer[]) => void;
+  addAnswer: (answer: Answer) => void;
+  updateAnswer: (questionId: string, response: boolean) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  reset: () => void;
+  initializeProvider: (defaultProvider: string) => void;
+  validateAndUpdateModel: (availableModels: string[]) => void;
+}
+
+const initialState: RefinementState = {
+  session: null,
+  currentStep: 'input',
+  selectedProvider: '',
+  selectedModel: undefined,
+  questions: [],
+  answers: [],
+  isLoading: false,
+  error: null,
+};
+
+export const useRefinementStore = create<RefinementState & RefinementActions>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
+      setSession: (session) => set({ session }),
+      setCurrentStep: (step) => set({ currentStep: step }),
+      setSelectedProvider: (provider) => set({ selectedProvider: provider }),
+      setSelectedModel: (model) => set({ selectedModel: model }),
+      setQuestions: (questions) => set({ questions }),
+      setAnswers: (answers) => set({ answers }),
+      addAnswer: (answer) =>
+        set((state) => ({
+          answers: [...state.answers.filter((a) => a.questionId !== answer.questionId), answer],
+        })),
+      updateAnswer: (questionId, response) => {
+        const existingAnswer = get().answers.find((a) => a.questionId === questionId);
+        const newAnswer: Answer = {
+          id: existingAnswer?.id || `answer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          questionId,
+          response,
+          timestamp: new Date(),
+        };
+        set((state) => ({
+          answers: [...state.answers.filter((a) => a.questionId !== questionId), newAnswer],
+        }));
+      },
+      setLoading: (loading) => set({ isLoading: loading }),
+      setError: (error) => set({ error }),
+      reset: () => set({ ...initialState }),
+      initializeProvider: (defaultProvider) => {
+        const { selectedProvider } = get();
+        if (!selectedProvider) {
+          set({ selectedProvider: defaultProvider });
+        }
+      },
+      validateAndUpdateModel: (availableModels) => {
+        const { selectedModel } = get();
+        
+        // If no model selected or current model is not available, select the first available model
+        if (!selectedModel || !availableModels.includes(selectedModel)) {
+          const newModel = availableModels.length > 0 ? availableModels[0] : undefined;
+          if (newModel !== selectedModel) {
+            console.log(`Updating model from ${selectedModel} to ${newModel}`);
+            set({ selectedModel: newModel });
+          }
+        }
+      },
+    }),
+    {
+      name: 'refinement-store',
+      version: 1, // Add version to force cache invalidation when needed
+      partialize: (state) => ({
+        selectedProvider: state.selectedProvider,
+        selectedModel: state.selectedModel,
+      }),
+    }
+  )
+); 
