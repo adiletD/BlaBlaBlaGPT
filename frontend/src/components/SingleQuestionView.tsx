@@ -75,6 +75,15 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const isFirstQuestion = currentQuestionIndex === 0;
 
+  // Set default answer to middle option if no answer exists
+  useEffect(() => {
+    if (currentQuestion && !currentAnswer && currentQuestion.options && currentQuestion.options.length > 0) {
+      const defaultOptionIndex = currentQuestion.defaultOption || 1;
+      const defaultOptionValue = currentQuestion.options[defaultOptionIndex];
+      updateAnswer(currentQuestion.id, defaultOptionValue);
+    }
+  }, [currentQuestion, currentAnswer, updateAnswer]);
+
   // Focus management
   useEffect(() => {
     if (focusedElement === 'custom' && customInputRef.current) {
@@ -120,13 +129,16 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
         nextQuestion();
       }
       
-      // Answer selection and immediate submission
-      else if (e.key === 'ArrowLeft') {
+      // Answer selection for 3 options
+      else if (e.key === 'ArrowLeft' && currentQuestion?.options) {
         e.preventDefault();
-        handleAnswer(true);
-      } else if (e.key === 'ArrowRight') {
+        handleAnswer(currentQuestion.options[0]); // First option
+      } else if (e.key === 'ArrowRight' && currentQuestion?.options) {
         e.preventDefault();
-        handleAnswer(false);
+        handleAnswer(currentQuestion.options[2]); // Third option
+      } else if (e.key === ' ' && currentQuestion?.options) {
+        e.preventDefault();
+        handleAnswer(currentQuestion.options[1]); // Middle option (space bar)
       } else if (e.key === 'Tab') {
         e.preventDefault();
         setFocusedElement('custom');
@@ -156,7 +168,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuestionIndex, questions.length, previousQuestion, nextQuestion, handleAnswer]);
+  }, [currentQuestionIndex, questions.length, previousQuestion, nextQuestion, handleAnswer, currentQuestion]);
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,34 +289,54 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
           {/* Answer Options */}
           <div className="space-y-6" role="group" aria-labelledby="current-question">
-            {/* Yes/No Buttons */}
-            <fieldset className="flex justify-center space-x-6">
-              <legend className="sr-only">Answer the question with Yes or No</legend>
-              <button
-                onClick={() => handleAnswer(true)}
-                className={`px-12 py-6 text-xl font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300 ${
-                  currentAnswer?.response === true
-                    ? 'bg-green-600 text-white shadow-lg'
-                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                }`}
-                aria-pressed={currentAnswer?.response === true}
-                aria-describedby={currentQuestion.explanation ? "question-explanation" : undefined}
-              >
-                Yes
-              </button>
-              
-              <button
-                onClick={() => handleAnswer(false)}
-                className={`px-12 py-6 text-xl font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-300 ${
-                  currentAnswer?.response === false
-                    ? 'bg-red-600 text-white shadow-lg'
-                    : 'bg-red-100 text-red-700 hover:bg-red-200'
-                }`}
-                aria-pressed={currentAnswer?.response === false}
-                aria-describedby={currentQuestion.explanation ? "question-explanation" : undefined}
-              >
-                No
-              </button>
+            {/* 3 Option Buttons */}
+            <fieldset className="flex justify-center space-x-4">
+              <legend className="sr-only">Choose from the available options</legend>
+              {currentQuestion.options && currentQuestion.options.map((option, index) => {
+                const isSelected = currentAnswer?.response === option;
+                const isDefault = index === (currentQuestion.defaultOption || 1);
+                
+                // Color scheme based on position
+                const getButtonStyles = () => {
+                  if (index === 0) {
+                    // First option - blue theme
+                    return isSelected 
+                      ? 'bg-blue-600 text-white shadow-lg' 
+                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200';
+                  } else if (index === 1) {
+                    // Middle option - green theme (default)
+                    return isSelected 
+                      ? 'bg-green-600 text-white shadow-lg' 
+                      : 'bg-green-100 text-green-700 hover:bg-green-200';
+                  } else {
+                    // Third option - purple theme
+                    return isSelected 
+                      ? 'bg-purple-600 text-white shadow-lg' 
+                      : 'bg-purple-100 text-purple-700 hover:bg-purple-200';
+                  }
+                };
+                
+                const getRingColor = () => {
+                  if (index === 0) return 'focus:ring-blue-300';
+                  if (index === 1) return 'focus:ring-green-300';
+                  return 'focus:ring-purple-300';
+                };
+
+                return (
+                  <button
+                    key={option}
+                    onClick={() => handleAnswer(option)}
+                    className={`px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 ${getButtonStyles()} ${getRingColor()}`}
+                    aria-pressed={isSelected}
+                    aria-describedby={currentQuestion.explanation ? "question-explanation" : undefined}
+                  >
+                    {option}
+                    {isDefault && !isSelected && (
+                      <span className="ml-2 text-xs opacity-75">(default)</span>
+                    )}
+                  </button>
+                );
+              })}
             </fieldset>
 
             {/* Custom Answer Input */}
@@ -346,16 +378,18 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200"
+                className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-md mx-auto"
                 role="status"
                 aria-live="polite"
               >
-                <p className="text-sm text-blue-800">
-                  <strong>Your answer:</strong> {
-                    typeof currentAnswer.response === 'boolean' 
+                <p className="text-sm text-blue-800 break-words">
+                  <strong>Your answer:</strong>{' '}
+                  <span className="inline-block">
+                    {typeof currentAnswer.response === 'boolean' 
                       ? (currentAnswer.response ? 'Yes' : 'No')
                       : currentAnswer.response
-                  }
+                    }
+                  </span>
                 </p>
               </motion.div>
             )}
@@ -371,11 +405,15 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
               </div>
               <div className="flex items-center space-x-1">
                 <ChevronLeft className="h-3 w-3" aria-hidden="true" />
-                <span>Yes</span>
+                <span>First option</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Space</kbd>
+                <span>Middle option</span>
               </div>
               <div className="flex items-center space-x-1">
                 <ChevronRight className="h-3 w-3" aria-hidden="true" />
-                <span>No</span>
+                <span>Last option</span>
               </div>
               <div className="flex items-center space-x-1">
                 <kbd className="px-1 py-0.5 bg-gray-100 rounded text-xs">Enter</kbd>

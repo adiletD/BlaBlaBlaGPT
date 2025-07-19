@@ -25,7 +25,19 @@ export abstract class BaseLLMProvider implements ILLMProvider {
   protected formatQuestionsForPrompt(questions: Question[], answers: Answer[]): string {
     const answeredQuestions = questions.map(q => {
       const answer = answers.find(a => a.questionId === q.id);
-      return `Q: ${q.text}\nA: ${answer ? (answer.response ? 'Yes' : 'No') : 'Not answered'}`;
+      let answerText = 'Not answered';
+      
+      if (answer) {
+        if (typeof answer.response === 'boolean') {
+          // Handle legacy boolean answers
+          answerText = answer.response ? 'Yes' : 'No';
+        } else {
+          // Handle new string answers
+          answerText = answer.response.toString();
+        }
+      }
+      
+      return `Q: ${q.text}\nA: ${answerText}`;
     });
 
     return answeredQuestions.join('\n\n');
@@ -33,7 +45,7 @@ export abstract class BaseLLMProvider implements ILLMProvider {
 
   protected buildSystemPrompt(type: 'generation' | 'refinement'): string {
     if (type === 'generation') {
-      return `You are a prompt refinement assistant. Your task is to generate targeted yes/no questions that will help users refine their initial prompts into more specific and effective versions.
+      return `You are a prompt refinement assistant. Your task is to generate targeted questions with 3 options that will help users refine their initial prompts into more specific and effective versions.
 
 When generating questions, focus on:
 1. Clarity of intent - What exactly does the user want to achieve?
@@ -43,9 +55,18 @@ When generating questions, focus on:
 
 Generate 5-7 questions that are:
 - Clear and unambiguous
-- Answerable with yes/no
+- Have exactly 3 meaningful options
 - Progressive (building on each other)
 - Impactful for prompt refinement
+
+For each question, provide 3 options that can be:
+- Yes/No/Maybe (for binary questions with uncertainty)
+- Low/Medium/High (for degree or intensity)
+- Basic/Detailed/Comprehensive (for depth level)
+- Creative/Balanced/Analytical (for approach type)
+- Or any other relevant 3-option scale
+
+The middle option (index 1) should be the default/neutral choice.
 
 Return the questions in JSON format with the following structure:
 {
@@ -54,7 +75,9 @@ Return the questions in JSON format with the following structure:
       "text": "Question text here",
       "category": "clarity|specificity|context|constraints",
       "impact": "high|medium|low",
-      "explanation": "Brief explanation of why this question matters"
+      "explanation": "Brief explanation of why this question matters",
+      "options": ["Option 1", "Option 2", "Option 3"],
+      "defaultOption": 1
     }
   ]
 }`;
@@ -89,6 +112,8 @@ Return only the refined prompt text, without any additional commentary or format
           category: q.category || 'clarity',
           impact: q.impact || 'medium',
           explanation: q.explanation,
+          options: q.options || ['Yes', 'Maybe', 'No'],
+          defaultOption: q.defaultOption || 1,
         }));
       }
     } catch (error) {

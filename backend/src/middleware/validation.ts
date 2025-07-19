@@ -26,7 +26,7 @@ export const refinePromptSchema = z.object({
   answers: z.array(z.object({
     id: z.string(),
     questionId: z.string(),
-    response: z.boolean(),
+    response: z.union([z.boolean(), z.string()]),
     timestamp: z.string().or(z.date()),
   })),
   llmProvider: z.string()

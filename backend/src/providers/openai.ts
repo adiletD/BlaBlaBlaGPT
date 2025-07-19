@@ -62,7 +62,7 @@ export class OpenAIProvider extends BaseLLMProvider {
           },
           {
             role: 'user',
-            content: `Please generate ${maxQuestions} targeted yes/no questions to help refine this prompt:\n\n"${prompt}"\n\nRemember to focus on clarity, specificity, context, and constraints.`,
+            content: `Please generate ${maxQuestions} targeted questions with 3 options each to help refine this prompt:\n\n"${prompt}"\n\nRemember to focus on clarity, specificity, context, and constraints. Each question should have exactly 3 meaningful options with the middle option as the default.`,
           },
         ],
         temperature,
@@ -134,34 +134,44 @@ export class OpenAIProvider extends BaseLLMProvider {
   private generateFallbackQuestions(prompt: string): Question[] {
     const fallbackQuestions = [
       {
-        text: 'Do you want the response to be detailed and comprehensive?',
+        text: 'What level of detail do you want in the response?',
         category: 'specificity' as const,
         impact: 'high' as const,
         explanation: 'Helps determine the level of detail needed',
+        options: ['Basic', 'Detailed', 'Comprehensive'],
+        defaultOption: 1,
       },
       {
-        text: 'Are you looking for a creative or analytical response?',
+        text: 'What type of thinking approach do you prefer?',
         category: 'clarity' as const,
         impact: 'high' as const,
         explanation: 'Clarifies the type of thinking required',
+        options: ['Creative', 'Balanced', 'Analytical'],
+        defaultOption: 1,
       },
       {
-        text: 'Do you have a specific audience in mind for this response?',
+        text: 'How specific should the audience targeting be?',
         category: 'context' as const,
         impact: 'medium' as const,
         explanation: 'Helps tailor the response appropriately',
+        options: ['General', 'Somewhat Specific', 'Highly Specific'],
+        defaultOption: 1,
       },
       {
-        text: 'Should the response include examples or specific instances?',
+        text: 'How many examples should be included?',
         category: 'specificity' as const,
         impact: 'medium' as const,
         explanation: 'Determines whether to include concrete examples',
+        options: ['Few', 'Moderate', 'Many'],
+        defaultOption: 1,
       },
       {
-        text: 'Are there any topics or approaches you want to avoid?',
+        text: 'How strict should the constraints be?',
         category: 'constraints' as const,
         impact: 'medium' as const,
         explanation: 'Identifies any limitations or restrictions',
+        options: ['Flexible', 'Moderate', 'Strict'],
+        defaultOption: 1,
       },
     ];
 
@@ -172,6 +182,8 @@ export class OpenAIProvider extends BaseLLMProvider {
       category: q.category,
       impact: q.impact,
       explanation: q.explanation,
+      options: q.options,
+      defaultOption: q.defaultOption,
     }));
   }
 } 

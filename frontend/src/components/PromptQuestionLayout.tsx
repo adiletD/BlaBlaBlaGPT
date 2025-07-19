@@ -88,19 +88,7 @@ export const PromptQuestionLayout: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-8"
-      >
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Refine Your Prompt
-        </h2>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Review your prompt on the left and answer the questions on the right to help us create a more effective version.
-        </p>
-      </motion.div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Side - Prompt Display/Edit */}
@@ -187,15 +175,7 @@ export const PromptQuestionLayout: React.FC = () => {
             </div>
           )}
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">
-              💡 Tip
-            </h4>
-            <p className="text-sm text-blue-800">
-              Answer the questions on the right to help us understand your needs better. 
-              You can edit your prompt here if needed before generating the refined version.
-            </p>
-          </div>
+
         </motion.div>
 
         {/* Right Side - Questions */}

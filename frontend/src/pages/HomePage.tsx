@@ -128,7 +128,7 @@ export const HomePage: React.FC = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Sparkles className="h-8 w-8 text-primary-600" />
-              <h1 className="text-xl font-bold text-gray-900">Prompt Refiner</h1>
+              <h1 className="text-xl font-bold text-gray-900">BlaBlaBlaGPT</h1>
             </div>
             
             {/* Provider selector and test button in header */}
@@ -232,33 +232,7 @@ export const HomePage: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Progress indicator */}
-        {session && (
-          <div className="mb-8">
-            <div className="flex items-center justify-center space-x-4">
-              <div className={`flex items-center ${currentStep === 'input' ? 'text-primary-600' : 'text-gray-400'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'input' ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}>
-                  1
-                </div>
-                <span className="ml-2 text-sm font-medium">Input</span>
-              </div>
-              <ArrowRight className="h-4 w-4 text-gray-400" />
-              <div className={`flex items-center ${currentStep === 'questions' ? 'text-primary-600' : 'text-gray-400'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'questions' ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}>
-                  2
-                </div>
-                <span className="ml-2 text-sm font-medium">Questions</span>
-              </div>
-              <ArrowRight className="h-4 w-4 text-gray-400" />
-              <div className={`flex items-center ${currentStep === 'results' ? 'text-primary-600' : 'text-gray-400'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'results' ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}>
-                  3
-                </div>
-                <span className="ml-2 text-sm font-medium">Results</span>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Main content area */}
         <motion.div

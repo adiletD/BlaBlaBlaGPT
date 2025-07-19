@@ -19,6 +19,8 @@ export interface Question {
   category: 'clarity' | 'specificity' | 'context' | 'constraints';
   impact: 'high' | 'medium' | 'low';
   explanation?: string;
+  options: string[];
+  defaultOption: number;
 }
 
 export interface Answer {
@@ -66,7 +68,7 @@ export interface CreateSessionResponse {
 export interface AnswerQuestionRequest {
   sessionId: string;
   questionId: string;
-  response: boolean;
+  response: boolean | string;
 }
 
 export interface RefinePromptRequest {

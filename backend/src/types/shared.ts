@@ -19,6 +19,8 @@ export interface Question {
   category: 'clarity' | 'specificity' | 'context' | 'constraints';
   impact: 'high' | 'medium' | 'low';
   explanation?: string;
+  options: string[];
+  defaultOption: number;
 }
 
 export interface Answer {
