@@ -79,7 +79,7 @@ export const PromptInput: React.FC = () => {
         transition={{ duration: 0.6 }}
         className="text-center mb-8"
       >
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl font-bold text-black mb-4">
           Refine Your Prompt
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -92,11 +92,11 @@ export const PromptInput: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="bg-white rounded-2xl shadow-lg p-8"
+        className="card-section p-8"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="prompt" className="block text-sm font-medium text-black mb-2">
               Your Initial Prompt
             </label>
             <textarea
@@ -104,7 +104,7 @@ export const PromptInput: React.FC = () => {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter your prompt here... (e.g., 'Write a blog post about artificial intelligence')"
-              className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+              className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none shadow-minimal transition-all duration-200"
               disabled={createSessionMutation.isPending}
             />
             <div className="mt-2 flex justify-between items-center">
@@ -112,7 +112,7 @@ export const PromptInput: React.FC = () => {
                 {prompt.length}/5000 characters
               </span>
               {prompt.length > 0 && prompt.length < 10 && (
-                <span className="text-sm text-red-500">
+                <span className="text-sm text-red-600">
                   Minimum 10 characters required
                 </span>
               )}
@@ -123,7 +123,7 @@ export const PromptInput: React.FC = () => {
             <button
               type="submit"
               disabled={createSessionMutation.isPending || !prompt.trim() || prompt.length < 10}
-              className="btn btn-primary px-8 py-3 text-lg font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary px-8 py-3 text-lg font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {createSessionMutation.isPending ? (
                 <>
@@ -150,8 +150,8 @@ export const PromptInput: React.FC = () => {
       >
         <div className="text-center mb-4">
           <div className="flex items-center justify-center space-x-2">
-            <Lightbulb className="h-5 w-5 text-primary-600" />
-            <span className="text-sm font-medium text-gray-700">Try these example prompts:</span>
+            <Lightbulb className="h-5 w-5 text-gray-600" />
+            <span className="text-sm font-medium text-black">Try these example prompts:</span>
           </div>
         </div>
         
@@ -163,7 +163,7 @@ export const PromptInput: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.1 * index }}
               onClick={() => handleExampleClick(example)}
-              className="text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors duration-200 text-sm"
+              className="text-left p-3 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200 text-sm shadow-minimal hover:shadow-interactive"
               disabled={createSessionMutation.isPending}
             >
               "{example}"

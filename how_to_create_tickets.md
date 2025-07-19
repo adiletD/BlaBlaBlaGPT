@@ -37,7 +37,7 @@ Format: `ticket_<ticket number>_<feature name shortly>`
 
 Where:
 
-- **ticket number**: Sequential number that increments with each new ticket (e.g., 001, 002, 003...)
+- **ticket number**: Sequential number that increments with each new ticket (e.g., 001, 002, 003...). Always use the next available number in sequence.
 - **feature name shortly**: Brief description of the feature/fix (use underscores instead of spaces)
 
 **Examples:**
@@ -182,7 +182,7 @@ Use the **Given-When-Then** format:
 
 ## Ticket Template
 
-Copy and customize this template for each new ticket:
+Copy and customize this template for each new ticket (replace XXX with the next sequential number):
 
 ```markdown
 # ticket_XXX_feature_name_shortly
@@ -298,7 +298,7 @@ Copy and customize this template for each new ticket:
 ## Example Ticket
 
 ```markdown
-# ticket_001_prompt_history_with_search
+# ticket_004_prompt_history_with_search
 
 ## Problem Statement
 

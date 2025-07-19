@@ -3,9 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Settings, Zap, TestTube, Loader2 } from 'lucide-react';
 import { apiService } from '../services/api';
-import { PromptInput } from '../components/PromptInput';
-import { PromptQuestionLayout } from '../components/PromptQuestionLayout';
-import { RefinementResults } from '../components/RefinementResults';
+import { ChatInterface } from '../components/ChatInterface';
 import { ProviderSelector } from '../components/ProviderSelector';
 import { useRefinementStore } from '../store/refinementStore';
 import { LLMProvider } from '../types';
@@ -16,8 +14,6 @@ export const HomePage: React.FC = () => {
   const [showTestResult, setShowTestResult] = useState(false);
 
   const {
-    session,
-    currentStep,
     selectedProvider,
     selectedModel,
     setSelectedProvider,
@@ -107,18 +103,7 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 'input':
-        return <PromptInput />;
-      case 'questions':
-        return <PromptQuestionLayout />;
-      case 'results':
-        return <RefinementResults />;
-      default:
-        return <PromptInput />;
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -235,14 +220,7 @@ export const HomePage: React.FC = () => {
 
 
         {/* Main content area */}
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {renderStep()}
-        </motion.div>
+        <ChatInterface />
 
         {/* Footer */}
         <footer className="mt-16 text-center text-sm text-gray-500">

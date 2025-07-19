@@ -25,7 +25,7 @@ export const RefinementResults: React.FC = () => {
         transition={{ duration: 0.6 }}
         className="text-center mb-8"
       >
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl font-bold text-black mb-4">
           Your Refined Prompt
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -37,15 +37,15 @@ export const RefinementResults: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="bg-white rounded-2xl shadow-lg p-8"
+        className="card-section p-8"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Original Prompt */}
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            <h3 className="text-xl font-semibold text-black mb-4">
               Original Prompt
             </h3>
-            <div className="bg-gray-50 rounded-lg p-4 h-32 overflow-y-auto">
+            <div className="bg-white rounded-lg p-4 h-32 overflow-y-auto border border-gray-200 shadow-minimal">
               <p className="text-gray-700 text-sm">
                 {session?.originalPrompt}
               </p>
@@ -54,10 +54,10 @@ export const RefinementResults: React.FC = () => {
 
           {/* Refined Prompt */}
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            <h3 className="text-xl font-semibold text-black mb-4">
               Refined Prompt
             </h3>
-            <div className="bg-blue-50 rounded-lg p-4 h-32 overflow-y-auto">
+            <div className="bg-gray-50 rounded-lg p-4 h-32 overflow-y-auto border border-gray-200 shadow-minimal">
               <p className="text-gray-700 text-sm">
                 {session?.refinedPrompt || 'No refined prompt available'}
               </p>
@@ -68,7 +68,7 @@ export const RefinementResults: React.FC = () => {
         <div className="mt-8 flex justify-center space-x-4">
           <button
             onClick={handleCopy}
-            className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="btn btn-primary flex items-center space-x-2 px-6 py-3 rounded-lg"
           >
             <Copy className="h-4 w-4" />
             <span>Copy Refined Prompt</span>
@@ -76,7 +76,7 @@ export const RefinementResults: React.FC = () => {
           
           <button
             onClick={handleReset}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="btn btn-secondary flex items-center space-x-2 px-6 py-3 rounded-lg"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Start Over</span>

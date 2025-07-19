@@ -106,16 +106,16 @@ export const PromptQuestionLayout: React.FC = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-lg p-8"
+          className="card-section p-8"
         >
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">
+            <h3 className="text-xl font-semibold text-black">
               Your Prompt
             </h3>
             <div className="flex space-x-2">
               <button
                 onClick={handleCopyPrompt}
-                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                className="p-2 text-gray-600 hover:text-black transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-gray-200 bg-white"
                 title="Copy prompt"
               >
                 <Copy className="h-4 w-4" />
@@ -123,7 +123,7 @@ export const PromptQuestionLayout: React.FC = () => {
               {!isEditingPrompt ? (
                 <button
                   onClick={handleEditPrompt}
-                  className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                  className="p-2 text-gray-600 hover:text-black transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-gray-200 bg-white"
                   title="Edit prompt"
                 >
                   <Edit3 className="h-4 w-4" />
@@ -132,14 +132,14 @@ export const PromptQuestionLayout: React.FC = () => {
                 <div className="flex space-x-1">
                   <button
                     onClick={handleSavePrompt}
-                    className="p-2 text-green-600 hover:text-green-700 transition-colors"
+                    className="p-2 text-green-700 hover:text-green-800 transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-green-200 bg-green-50"
                     title="Save changes"
                   >
                     <Save className="h-4 w-4" />
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="p-2 text-red-600 hover:text-red-700 transition-colors"
+                    className="p-2 text-red-700 hover:text-red-800 transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-red-200 bg-red-50"
                     title="Cancel edit"
                   >
                     <X className="h-4 w-4" />
@@ -154,7 +154,7 @@ export const PromptQuestionLayout: React.FC = () => {
               <textarea
                 value={editedPrompt}
                 onChange={(e) => setEditedPrompt(e.target.value)}
-                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none shadow-minimal"
                 placeholder="Enter your prompt here..."
               />
               <div className="text-sm text-gray-500">
@@ -164,17 +164,17 @@ export const PromptQuestionLayout: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {session?.refinedPrompt && (
-                <div className="bg-green-50 rounded-lg p-6 min-h-[200px] border border-green-200">
+                <div className="bg-gray-50 rounded-lg p-6 min-h-[200px] border border-gray-200 shadow-minimal">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-green-600 font-medium">✨ Refined Prompt</span>
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Latest</span>
+                    <span className="text-black font-medium">✨ Refined Prompt</span>
+                    <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded border">Latest</span>
                   </div>
                   <p className="text-gray-700 whitespace-pre-wrap">
                     {session.refinedPrompt}
                   </p>
                 </div>
               )}
-              <div className="bg-gray-50 rounded-lg p-6 min-h-[200px]">
+              <div className="bg-white rounded-lg p-6 min-h-[200px] border border-gray-200 shadow-minimal">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-gray-600 font-medium">📝 Original Prompt</span>
                 </div>
@@ -195,7 +195,7 @@ export const PromptQuestionLayout: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="space-y-6"
         >
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="card-section p-6">
             {allQuestionsAnswered && (
               <div className="text-center mb-4">
                 <div className="text-sm text-gray-500">
@@ -207,7 +207,7 @@ export const PromptQuestionLayout: React.FC = () => {
             <SingleQuestionView onAutoSubmit={handleAutoSubmit} />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="card-section p-6">
             {(isAutoSubmitting || allQuestionsAnswered) && (
               <div className="mb-4 text-center">
                 <p className="text-sm text-gray-600">
@@ -221,7 +221,7 @@ export const PromptQuestionLayout: React.FC = () => {
             <button
               onClick={handleGenerateRefinedPrompt}
               disabled={refinePromptMutation.isPending || isAutoSubmitting}
-              className="w-full btn btn-primary px-6 py-3 text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn btn-primary px-6 py-3 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isAutoSubmitting ? (
                 <>
