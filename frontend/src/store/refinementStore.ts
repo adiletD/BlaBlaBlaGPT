@@ -12,6 +12,7 @@ interface RefinementState {
   currentQuestionIndex: number;
   isLoading: boolean;
   error: string | null;
+  isAutoSubmitting: boolean;
 }
 
 interface RefinementActions {
@@ -28,6 +29,7 @@ interface RefinementActions {
   previousQuestion: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setAutoSubmitting: (autoSubmitting: boolean) => void;
   reset: () => void;
   initializeProvider: (defaultProvider: string) => void;
   validateAndUpdateModel: (availableModels: string[]) => void;
@@ -43,6 +45,7 @@ const initialState: RefinementState = {
   currentQuestionIndex: 0,
   isLoading: false,
   error: null,
+  isAutoSubmitting: false,
 };
 
 export const useRefinementStore = create<RefinementState & RefinementActions>()(
@@ -86,6 +89,7 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       },
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+      setAutoSubmitting: (autoSubmitting) => set({ isAutoSubmitting: autoSubmitting }),
       reset: () => set({ ...initialState }),
       initializeProvider: (defaultProvider) => {
         const { selectedProvider } = get();

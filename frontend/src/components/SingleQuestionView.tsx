@@ -40,9 +40,10 @@ if (typeof document !== 'undefined' && !document.getElementById('sr-only-styles'
 
 interface SingleQuestionViewProps {
   className?: string;
+  onAutoSubmit?: () => void;
 }
 
-export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ className = '' }) => {
+export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ className = '', onAutoSubmit }) => {
   const {
     questions,
     answers,
@@ -51,6 +52,8 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
     nextQuestion,
     previousQuestion,
     setCurrentQuestionIndex,
+    isAutoSubmitting,
+    setAutoSubmitting,
   } = useRefinementStore();
 
   const [customAnswer, setCustomAnswer] = useState('');
@@ -104,13 +107,23 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
     setCustomAnswer('');
     setFocusedElement(null);
     
-    // Auto-advance to next question
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        nextQuestion();
-      }
-    }, 300);
-  }, [currentQuestion, updateAnswer, currentQuestionIndex, questions.length, nextQuestion]);
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
+    
+    if (isLastQuestion && onAutoSubmit) {
+      // Auto-submit for last question
+      setAutoSubmitting(true);
+      setTimeout(() => {
+        onAutoSubmit();
+      }, 400);
+    } else {
+      // Auto-advance to next question
+      setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) {
+          nextQuestion();
+        }
+      }, 300);
+    }
+  }, [currentQuestion, updateAnswer, currentQuestionIndex, questions.length, nextQuestion, onAutoSubmit, setAutoSubmitting]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -124,9 +137,28 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
       if (e.key === 'ArrowUp' && currentQuestionIndex > 0) {
         e.preventDefault();
         previousQuestion();
-      } else if (e.key === 'ArrowDown' && currentQuestionIndex < questions.length - 1) {
+      } else if (e.key === 'ArrowDown') {
         e.preventDefault();
-        nextQuestion();
+        const isLastQuestion = currentQuestionIndex === questions.length - 1;
+        
+        if (isLastQuestion) {
+          // On last question, arrow down should trigger auto-submit
+          if (currentAnswer && onAutoSubmit) {
+            // Already have an answer, trigger auto-submit directly
+            setAutoSubmitting(true);
+            setTimeout(() => {
+              onAutoSubmit();
+            }, 400);
+          } else if (currentQuestion?.options && onAutoSubmit) {
+            // No answer yet, select default option which will trigger auto-submit
+            const defaultOptionIndex = currentQuestion.defaultOption || 1;
+            const defaultOptionValue = currentQuestion.options[defaultOptionIndex];
+            handleAnswer(defaultOptionValue);
+          }
+        } else {
+          // Not last question, go to next question as normal
+          nextQuestion();
+        }
       }
       
       // Answer selection for 3 options
@@ -168,7 +200,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuestionIndex, questions.length, previousQuestion, nextQuestion, handleAnswer, currentQuestion]);
+  }, [currentQuestionIndex, questions.length, previousQuestion, nextQuestion, handleAnswer, currentQuestion, currentAnswer, onAutoSubmit, setAutoSubmitting]);
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,10 +227,10 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
         Skip to question
       </a>
       
-      <div className="flex gap-6 mb-6">
+      <div className="flex gap-4 mb-4">
         {/* Vertical Timeline */}
-        <div className="flex flex-col items-center space-y-2 pt-8">
-          <div className="text-xs text-gray-500 mb-2">Progress</div>
+        <div className="flex flex-col items-center space-y-1 pt-6">
+          <div className="text-xs text-gray-500 mb-1">Progress</div>
           <div className="flex flex-col space-y-2" role="group" aria-label="Question progress indicators">
             {questions.map((_, index) => (
               <div key={index} className="flex flex-col items-center">
@@ -228,7 +260,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
         {/* Main Content */}
         <div className="flex-1">
           {/* Question Navigation */}
-          <nav className="flex justify-between items-center mb-6" aria-label="Question navigation">
+          <nav className="flex justify-between items-center mb-4" aria-label="Question navigation">
             <button
               onClick={previousQuestion}
               disabled={isFirstQuestion}
@@ -262,21 +294,21 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg p-8 border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white"
+          className=""
           role="main"
           aria-live="polite"
           aria-label={`Question ${currentQuestionIndex + 1} of ${questions.length}`}
         >
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center" aria-hidden="true">
-                <span className="text-lg font-bold text-primary-600">
+          <div className="text-center mb-4">
+            <div className="flex items-center justify-center mb-3">
+              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center" aria-hidden="true">
+                <span className="text-base font-bold text-primary-600">
                   {currentQuestionIndex + 1}
                 </span>
               </div>
             </div>
             
-            <h1 className="text-2xl font-bold text-gray-900 mb-4" id="current-question">
+            <h1 className="text-lg font-semibold text-gray-900 mb-3" id="current-question">
               {currentQuestion.text}
             </h1>
             
@@ -288,9 +320,9 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
           </div>
 
           {/* Answer Options */}
-          <div className="space-y-6" role="group" aria-labelledby="current-question">
+          <div className="space-y-4" role="group" aria-labelledby="current-question">
             {/* 3 Option Buttons */}
-            <fieldset className="flex justify-center space-x-4">
+            <fieldset className="flex justify-center space-x-3">
               <legend className="sr-only">Choose from the available options</legend>
               {currentQuestion.options && currentQuestion.options.map((option, index) => {
                 const isSelected = currentAnswer?.response === option;
@@ -326,7 +358,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
                   <button
                     key={option}
                     onClick={() => handleAnswer(option)}
-                    className={`px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 ${getButtonStyles()} ${getRingColor()}`}
+                    className={`px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 ${getButtonStyles()} ${getRingColor()}`}
                     aria-pressed={isSelected}
                     aria-describedby={currentQuestion.explanation ? "question-explanation" : undefined}
                   >
@@ -341,7 +373,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
             {/* Custom Answer Input */}
             <div className="max-w-md mx-auto">
-              <form onSubmit={handleCustomSubmit} className="space-y-3" role="form" aria-labelledby="custom-answer-label">
+              <form onSubmit={handleCustomSubmit} className="space-y-2" role="form" aria-labelledby="custom-answer-label">
                 <label id="custom-answer-label" className="block text-sm font-medium text-gray-700 text-center">
                   Or provide a custom answer:
                 </label>
@@ -353,7 +385,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
                     onChange={(e) => setCustomAnswer(e.target.value)}
                     onFocus={() => setFocusedElement('custom')}
                     placeholder="Type your answer..."
-                    className={`flex-1 px-4 py-3 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                    className={`flex-1 px-3 py-2 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
                       focusedElement === 'custom'
                         ? 'border-primary-500 bg-primary-50'
                         : 'border-gray-300 focus:border-primary-500'
@@ -364,7 +396,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
                   <button
                     type="submit"
                     disabled={!customAnswer.trim()}
-                    className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
                     aria-label="Submit custom answer"
                   >
                     Submit
@@ -373,8 +405,23 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
               </form>
             </div>
 
+            {/* Auto-Submit Status */}
+            {isAutoSubmitting && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center p-4 bg-green-50 rounded-lg border border-green-200 max-w-md mx-auto"
+                role="status"
+                aria-live="polite"
+              >
+                <p className="text-sm text-green-800">
+                  ✨ <strong>Auto-generating refined prompt...</strong>
+                </p>
+              </motion.div>
+            )}
+
             {/* Current Answer Display */}
-            {currentAnswer && (
+            {currentAnswer && !isAutoSubmitting && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -396,12 +443,12 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
           </div>
 
           {/* Keyboard Navigation Hint */}
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <div className="flex justify-center space-x-4 text-xs text-gray-500" role="complementary" aria-label="Keyboard shortcuts">
               <div className="flex items-center space-x-1">
                 <ArrowUp className="h-3 w-3" aria-hidden="true" />
                 <ArrowDown className="h-3 w-3" aria-hidden="true" />
-                <span>Navigate questions</span>
+                <span>{isLastQuestion ? 'Up/Down to submit' : 'Navigate questions'}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <ChevronLeft className="h-3 w-3" aria-hidden="true" />

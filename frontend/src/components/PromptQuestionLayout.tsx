@@ -18,7 +18,9 @@ export const PromptQuestionLayout: React.FC = () => {
     setQuestions,
     setCurrentQuestionIndex,
     selectedProvider,
-    selectedModel 
+    selectedModel,
+    isAutoSubmitting,
+    setAutoSubmitting
   } = useRefinementStore();
 
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
@@ -43,9 +45,13 @@ export const PromptQuestionLayout: React.FC = () => {
       setAnswers([]);
       // Reset to first question
       setCurrentQuestionIndex(0);
+      // Reset auto-submit state
+      setAutoSubmitting(false);
       toast.success('Prompt refined successfully! New questions generated.');
     },
     onError: (error: any) => {
+      // Reset auto-submit state on error
+      setAutoSubmitting(false);
       const message = error.response?.data?.message || error.message || 'Failed to refine prompt';
       toast.error(message);
     },
@@ -79,6 +85,10 @@ export const PromptQuestionLayout: React.FC = () => {
   };
 
   const handleGenerateRefinedPrompt = () => {
+    refinePromptMutation.mutate();
+  };
+
+  const handleAutoSubmit = () => {
     refinePromptMutation.mutate();
   };
 
@@ -195,13 +205,15 @@ export const PromptQuestionLayout: React.FC = () => {
               </div>
             </div>
             
-            <SingleQuestionView />
+            <SingleQuestionView onAutoSubmit={handleAutoSubmit} />
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <div className="mb-4 text-center">
               <p className="text-sm text-gray-600">
-                {allQuestionsAnswered 
+                {isAutoSubmitting 
+                  ? "Auto-generating your refined prompt..."
+                  : allQuestionsAnswered 
                   ? "All questions answered! Ready to generate your refined prompt."
                   : "You can generate a refined prompt at any time, even with partial answers."
                 }
@@ -209,10 +221,15 @@ export const PromptQuestionLayout: React.FC = () => {
             </div>
             <button
               onClick={handleGenerateRefinedPrompt}
-              disabled={refinePromptMutation.isPending}
+              disabled={refinePromptMutation.isPending || isAutoSubmitting}
               className="w-full btn btn-primary px-6 py-3 text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {refinePromptMutation.isPending ? (
+              {isAutoSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Auto-generating...
+                </>
+              ) : refinePromptMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Generating...
