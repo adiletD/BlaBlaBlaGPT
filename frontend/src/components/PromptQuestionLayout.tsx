@@ -196,29 +196,28 @@ export const PromptQuestionLayout: React.FC = () => {
           className="space-y-6"
         >
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">
-                Questions ({answers.length}/{questions.length})
-              </h3>
-              <div className="text-sm text-gray-500">
-                {allQuestionsAnswered ? '✅ All answered' : `${answers.length} of ${questions.length} answered`}
+            {allQuestionsAnswered && (
+              <div className="text-center mb-4">
+                <div className="text-sm text-gray-500">
+                  ✅ All answered
+                </div>
               </div>
-            </div>
+            )}
             
             <SingleQuestionView onAutoSubmit={handleAutoSubmit} />
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="mb-4 text-center">
-              <p className="text-sm text-gray-600">
-                {isAutoSubmitting 
-                  ? "Auto-generating your refined prompt..."
-                  : allQuestionsAnswered 
-                  ? "All questions answered! Ready to generate your refined prompt."
-                  : "You can generate a refined prompt at any time, even with partial answers."
-                }
-              </p>
-            </div>
+            {(isAutoSubmitting || allQuestionsAnswered) && (
+              <div className="mb-4 text-center">
+                <p className="text-sm text-gray-600">
+                  {isAutoSubmitting 
+                    ? "Auto-generating your refined prompt..."
+                    : "All questions answered! Ready to generate your refined prompt."
+                  }
+                </p>
+              </div>
+            )}
             <button
               onClick={handleGenerateRefinedPrompt}
               disabled={refinePromptMutation.isPending || isAutoSubmitting}

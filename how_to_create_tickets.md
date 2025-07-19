@@ -33,13 +33,18 @@ Before creating a ticket, understand:
 
 ### 3. **Write the Ticket Title**
 
-Format: `[Type] Brief description`
+Format: `ticket_<ticket number>_<feature name shortly>`
+
+Where:
+
+- **ticket number**: Sequential number that increments with each new ticket (e.g., 001, 002, 003...)
+- **feature name shortly**: Brief description of the feature/fix (use underscores instead of spaces)
 
 **Examples:**
 
-- `[Feature] Add conversation history sidebar`
-- `[Bug] Fix provider switching not updating results`
-- `[Enhancement] Improve prompt input validation`
+- `ticket_001_conversation_history_sidebar`
+- `ticket_002_fix_provider_switching_bug`
+- `ticket_003_improve_prompt_validation`
 
 ### 4. **Define the Problem/Opportunity**
 
@@ -180,7 +185,7 @@ Use the **Given-When-Then** format:
 Copy and customize this template for each new ticket:
 
 ```markdown
-# [Type] Ticket Title
+# ticket_XXX_feature_name_shortly
 
 ## Problem Statement
 
@@ -293,7 +298,7 @@ Copy and customize this template for each new ticket:
 ## Example Ticket
 
 ```markdown
-# [Feature] Add Prompt History with Search
+# ticket_001_prompt_history_with_search
 
 ## Problem Statement
 
