@@ -1,4 +1,4 @@
-# Prompt Refinement App
+# BlaBlaBlaGPT
 
 A sophisticated web application that helps users refine their prompts through an intelligent question-and-answer process. The app takes a user's initial, general prompt and uses LLM providers to generate targeted yes/no questions that progressively refine the prompt into a more specific, effective version.
 
@@ -187,12 +187,10 @@ curl -X POST http://localhost:8000/api/prompts/create-session \
 ### Common Issues
 
 1. **"No providers available"**
-
    - Check that you have at least one valid API key in your `.env` file
    - Verify the API key format is correct
 
 2. **"Network Error"**
-
    - Ensure the backend server is running on port 8000
    - Check CORS settings if accessing from a different port
 
