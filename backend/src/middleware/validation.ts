@@ -134,7 +134,7 @@ export const validateProvider = (req: Request, res: Response, next: NextFunction
     throw new AppError('LLM provider is required', 400, 'MISSING_PROVIDER');
   }
 
-  const validProviders = ['openai', 'anthropic', 'google', 'ollama'];
+  const validProviders = ['openai', 'anthropic', 'google', 'ollama', 'groq'];
   if (!validProviders.includes(llmProvider)) {
     throw new AppError(
       `Invalid LLM provider. Must be one of: ${validProviders.join(', ')}`,

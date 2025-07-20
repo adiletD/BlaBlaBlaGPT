@@ -54,6 +54,10 @@ export interface Config {
     ollama?: {
       baseUrl: string;
     };
+    groq?: {
+      apiKey: string;
+      baseUrl?: string;
+    };
   };
 }
 

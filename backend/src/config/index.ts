@@ -29,6 +29,10 @@ const config: Config = {
     ollama: process.env.OLLAMA_BASE_URL ? {
       baseUrl: process.env.OLLAMA_BASE_URL,
     } : undefined,
+    groq: process.env.GROQ_API_KEY ? {
+      apiKey: process.env.GROQ_API_KEY,
+      baseUrl: process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1',
+    } : undefined,
   },
 };
 
@@ -79,6 +83,24 @@ export const PROVIDER_CONFIGS: Record<LLMProviderType, ProviderConfig> = {
     supportedModels: ['llama2', 'codellama', 'mistral', 'llama3', 'gemma'],
     isEnabled: true,
     defaultModel: 'llama3',
+  },
+  [LLMProviderType.GROQ]: {
+    id: 'groq',
+    name: 'groq',
+    displayName: 'Groq',
+    apiKeyName: 'GROQ_API_KEY',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    supportedModels: [
+      'llama-3.3-70b-versatile',
+      'llama-4-scout',
+      'kimi-k2',
+      'gemma2-9b-it',
+      'llama-3.1-8b-instant',
+      'llama-3.1-70b-versatile',
+      'mixtral-8x7b-32768',
+    ],
+    isEnabled: true,
+    defaultModel: 'llama-3.3-70b-versatile',
   },
 };
 

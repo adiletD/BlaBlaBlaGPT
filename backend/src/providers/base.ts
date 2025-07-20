@@ -102,9 +102,11 @@ Return only the refined prompt text, without any additional commentary or format
   }
 
   protected parseQuestionsFromResponse(response: string): Question[] {
+    console.log('Parsing LLM response:', response.substring(0, 500) + '...');
     try {
       const parsed = JSON.parse(response);
       if (parsed.questions && Array.isArray(parsed.questions)) {
+        console.log(`Successfully parsed ${parsed.questions.length} questions from LLM`);
         return parsed.questions.map((q: any, index: number) => ({
           id: this.generateQuestionId(),
           text: q.text,
@@ -115,10 +117,14 @@ Return only the refined prompt text, without any additional commentary or format
           options: q.options || ['Yes', 'Maybe', 'No'],
           defaultOption: q.defaultOption || 1,
         }));
+      } else {
+        console.warn('LLM response missing questions array:', parsed);
       }
     } catch (error) {
       console.error('Failed to parse questions response:', error);
+      console.error('Raw response was:', response);
     }
+    console.log('Falling back to hardcoded questions');
     return [];
   }
 } 

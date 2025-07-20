@@ -109,6 +109,7 @@ export enum LLMProviderType {
   ANTHROPIC = 'anthropic',
   GOOGLE = 'google',
   OLLAMA = 'ollama',
+  GROQ = 'groq',
 }
 
 export interface ProviderConfig {

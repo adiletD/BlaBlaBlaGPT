@@ -115,10 +115,27 @@ export class AnthropicProvider extends BaseLLMProvider {
       }
 
       const questions = this.parseQuestionsFromResponse(content.text);
-      return questions.length > 0 ? questions.slice(0, maxQuestions) : this.generateFallbackQuestions(prompt);
-    } catch (error) {
+      if (questions.length === 0) {
+        throw new Error('Anthropic returned an invalid response format. Unable to parse questions from the response.');
+      }
+      return questions.slice(0, maxQuestions);
+    } catch (error: any) {
       errorLogger.error('Question generation failed', error, { provider: 'anthropic' });
-      return this.generateFallbackQuestions(prompt);
+      
+      // Enhance error with more specific information
+      if (error.response?.status === 401) {
+        throw new Error('Anthropic API key is invalid or expired. Please check your API key configuration.');
+      } else if (error.response?.status === 429) {
+        throw new Error('Anthropic rate limit exceeded. Please wait a moment before trying again or upgrade your plan.');
+      } else if (error.response?.status === 404) {
+        throw new Error(`Anthropic model "${model}" is not available or accessible with your current plan.`);
+      } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        throw new Error('Unable to connect to Anthropic. Please check your internet connection.');
+      } else if (error.message?.includes('parse questions')) {
+        throw error; // Re-throw parsing errors as-is
+      } else {
+        throw new Error(`Anthropic API error: ${error.message || 'Unknown error occurred'}`);
+      }
     }
   }
 

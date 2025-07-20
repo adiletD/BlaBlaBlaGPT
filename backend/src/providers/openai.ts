@@ -76,14 +76,27 @@ export class OpenAIProvider extends BaseLLMProvider {
 
       const questions = this.parseQuestionsFromResponse(content);
       if (questions.length === 0) {
-        // Fallback to basic questions if parsing fails
-        return this.generateFallbackQuestions(prompt);
+        throw new Error('OpenAI returned an invalid response format. Unable to parse questions from the response.');
       }
 
       return questions.slice(0, maxQuestions);
-    } catch (error) {
+    } catch (error: any) {
       console.error('OpenAI question generation failed:', error);
-      return this.generateFallbackQuestions(prompt);
+      
+      // Enhance error with more specific information
+      if (error.response?.status === 401) {
+        throw new Error('OpenAI API key is invalid or expired. Please check your API key configuration.');
+      } else if (error.response?.status === 429) {
+        throw new Error('OpenAI rate limit exceeded. Please wait a moment before trying again or upgrade your plan.');
+      } else if (error.response?.status === 404) {
+        throw new Error(`OpenAI model "${model}" is not available or accessible with your current plan.`);
+      } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        throw new Error('Unable to connect to OpenAI. Please check your internet connection.');
+      } else if (error.message?.includes('parse questions')) {
+        throw error; // Re-throw parsing errors as-is
+      } else {
+        throw new Error(`OpenAI API error: ${error.message || 'Unknown error occurred'}`);
+      }
     }
   }
 

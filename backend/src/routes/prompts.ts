@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
+import OpenAI from 'openai';
 import { promptRefinementService } from '../services/promptRefinementService';
 import { 
   validateCreateSession, 
@@ -113,73 +114,191 @@ router.get('/stats', asyncHandler(async (req: Request, res: Response) => {
 
 // Test API endpoint - Direct API call to test providers
 router.post('/test-api', asyncHandler(async (req: Request, res: Response) => {
-  const { provider = 'anthropic' } = req.body;
-  const model = 'claude-3-5-sonnet-20240620';
+  const { provider = 'anthropic', model } = req.body;
 
-  if (provider === 'anthropic') {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+  console.log(`Testing API with provider: ${provider}, model: ${model || 'default'}`);
 
-    if (!apiKey) {
-      return res.status(500).json({
+  try {
+    if (provider === 'anthropic') {
+      await testAnthropicAPI(res, model);
+    } else if (provider === 'groq') {
+      await testGroqAPI(res, model);
+    } else if (provider === 'openai') {
+      await testOpenAIAPI(res, model);
+    } else {
+      return res.status(400).json({
         success: false,
-        error: 'Anthropic API key not configured',
-        message: 'The ANTHROPIC_API_KEY environment variable is not set.',
+        error: 'Unsupported provider',
+        message: `Provider '${provider}' is not supported. Supported providers: anthropic, groq, openai`,
+        supportedProviders: ['anthropic', 'groq', 'openai']
       });
     }
-
-    try {
-      console.log('Bypassing Anthropic SDK, making a direct API call with axios.');
-
-      const response = await axios.post(
-        'https://api.anthropic.com/v1/messages',
-        {
-          model: model,
-          max_tokens: 1024,
-          messages: [{ role: 'user', content: 'Hello, Claude' }],
-        },
-        {
-          headers: {
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
-        }
-      );
-
-      const msg = response.data;
-      console.log('Axios request successful:', msg);
-
-      const apiResponse: ApiResponse = {
-        success: true,
-        data: {
-          provider: 'anthropic',
-          model: model,
-          response: msg,
-          testQuery: "Hello, Claude",
-          timestamp: new Date().toISOString()
-        },
-        message: 'API test successful via Axios',
-      };
-
-      res.json(apiResponse);
-    } catch (error: any) {
-      console.error('API test failed (Axios):', error.response ? error.response.data : error.message);
-      
-      const response: ApiResponse = {
-        success: false,
-        error: error.response ? error.response.data : error.message,
-        message: `Failed to test ${provider} API via Axios: ${error.message}`,
-      };
-
-      res.status(500).json(response);
-    }
-  } else {
-    res.status(400).json({
+  } catch (error: any) {
+    console.error(`API test failed for ${provider}:`, error);
+    
+    return res.status(500).json({
       success: false,
-      error: 'Unsupported provider',
-      message: 'Only Anthropic provider is supported for testing at the moment',
+      error: error.message || 'API test failed',
+      message: `Failed to test ${provider} API: ${error.message}`,
+      provider,
+      timestamp: new Date().toISOString()
     });
   }
 }));
+
+// Helper function to test Anthropic API
+async function testAnthropicAPI(res: Response, model?: string) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const defaultModel = 'claude-3-5-sonnet-20240620';
+  const testModel = model || defaultModel;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      success: false,
+      error: 'Anthropic API key not configured',
+      message: 'The ANTHROPIC_API_KEY environment variable is not set.',
+    });
+  }
+
+  console.log(`Testing Anthropic API with model: ${testModel}`);
+
+  const response = await axios.post(
+    'https://api.anthropic.com/v1/messages',
+    {
+      model: testModel,
+      max_tokens: 100,
+      messages: [{ role: 'user', content: 'Hello! Please respond with a brief greeting.' }],
+    },
+    {
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+    }
+  );
+
+  const msg = response.data;
+  console.log('Anthropic API test successful');
+
+  const apiResponse: ApiResponse = {
+    success: true,
+    data: {
+      provider: 'anthropic',
+      model: testModel,
+      response: msg,
+      testQuery: "Hello! Please respond with a brief greeting.",
+      timestamp: new Date().toISOString(),
+      responseText: msg.content?.[0]?.text || 'No text content received'
+    },
+    message: 'Anthropic API test successful',
+  };
+
+  res.json(apiResponse);
+}
+
+// Helper function to test Groq API
+async function testGroqAPI(res: Response, model?: string) {
+  const apiKey = process.env.GROQ_API_KEY;
+  const defaultModel = 'llama-3.3-70b-versatile';
+  const testModel = model || defaultModel;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      success: false,
+      error: 'Groq API key not configured',
+      message: 'The GROQ_API_KEY environment variable is not set.',
+    });
+  }
+
+  console.log(`Testing Groq API with model: ${testModel}`);
+
+  // Test using OpenAI-compatible client (recommended way)
+  const client = new OpenAI({
+    apiKey: apiKey,
+    baseURL: 'https://api.groq.com/openai/v1',
+  });
+
+  const response = await client.chat.completions.create({
+    model: testModel,
+    messages: [
+      {
+        role: 'user',
+        content: 'Hello! Please respond with a brief greeting.',
+      },
+    ],
+    max_tokens: 100,
+    temperature: 0.7,
+  });
+
+  console.log('Groq API test successful');
+
+  const apiResponse: ApiResponse = {
+    success: true,
+    data: {
+      provider: 'groq',
+      model: testModel,
+      response: response,
+      testQuery: "Hello! Please respond with a brief greeting.",
+      timestamp: new Date().toISOString(),
+      responseText: response.choices[0]?.message?.content || 'No content received',
+      usage: response.usage
+    },
+    message: 'Groq API test successful',
+  };
+
+  res.json(apiResponse);
+}
+
+// Helper function to test OpenAI API
+async function testOpenAIAPI(res: Response, model?: string) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const defaultModel = 'gpt-4';
+  const testModel = model || defaultModel;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      success: false,
+      error: 'OpenAI API key not configured',
+      message: 'The OPENAI_API_KEY environment variable is not set.',
+    });
+  }
+
+  console.log(`Testing OpenAI API with model: ${testModel}`);
+
+  const client = new OpenAI({
+    apiKey: apiKey,
+  });
+
+  const response = await client.chat.completions.create({
+    model: testModel,
+    messages: [
+      {
+        role: 'user',
+        content: 'Hello! Please respond with a brief greeting.',
+      },
+    ],
+    max_tokens: 100,
+    temperature: 0.7,
+  });
+
+  console.log('OpenAI API test successful');
+
+  const apiResponse: ApiResponse = {
+    success: true,
+    data: {
+      provider: 'openai',
+      model: testModel,
+      response: response,
+      testQuery: "Hello! Please respond with a brief greeting.",
+      timestamp: new Date().toISOString(),
+      responseText: response.choices[0]?.message?.content || 'No content received',
+      usage: response.usage
+    },
+    message: 'OpenAI API test successful',
+  };
+
+  res.json(apiResponse);
+}
 
 export default router; 

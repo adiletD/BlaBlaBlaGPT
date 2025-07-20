@@ -12,6 +12,13 @@ interface RefinementState {
   currentQuestionIndex: number;
   isLoading: boolean;
   error: string | null;
+  llmError: {
+    message: string;
+    provider: string;
+    model?: string;
+    details?: string;
+    type?: 'api_error' | 'auth_error' | 'rate_limit' | 'model_error' | 'network_error' | 'unknown';
+  } | null;
   isAutoSubmitting: boolean;
 }
 
@@ -29,6 +36,7 @@ interface RefinementActions {
   previousQuestion: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setLLMError: (error: RefinementState['llmError']) => void;
   setAutoSubmitting: (autoSubmitting: boolean) => void;
   reset: () => void;
   initializeProvider: (defaultProvider: string) => void;
@@ -45,6 +53,7 @@ const initialState: RefinementState = {
   currentQuestionIndex: 0,
   isLoading: false,
   error: null,
+  llmError: null,
   isAutoSubmitting: false,
 };
 
@@ -89,6 +98,7 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       },
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+      setLLMError: (llmError) => set({ llmError }),
       setAutoSubmitting: (autoSubmitting) => set({ isAutoSubmitting: autoSubmitting }),
       reset: () => set({ ...initialState }),
       initializeProvider: (defaultProvider) => {

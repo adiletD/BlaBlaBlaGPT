@@ -6,12 +6,14 @@ import { toast } from 'react-hot-toast';
 import { apiService } from '../services/api';
 import { useRefinementStore } from '../store/refinementStore';
 import { SingleQuestionView } from './SingleQuestionView';
+import { LLMErrorModal } from './LLMErrorModal';
 
 export const ChatInterface: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [editedPrompt, setEditedPrompt] = useState('');
+  const [providers, setProviders] = useState<Array<{ id: string; name: string; isAvailable: boolean }>>([]);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { 
@@ -20,10 +22,12 @@ export const ChatInterface: React.FC = () => {
     answers,
     selectedProvider,
     selectedModel,
+    llmError,
     setSession,
     setQuestions,
     setAnswers,
     setCurrentQuestionIndex,
+    setLLMError,
     isAutoSubmitting,
     setAutoSubmitting
   } = useRefinementStore();
@@ -60,7 +64,43 @@ export const ChatInterface: React.FC = () => {
     onError: (error: any) => {
       const message = error.response?.data?.message || error.message || 'Failed to create session';
       setIsTyping(false);
-      toast.error(message);
+      
+      // Check if this is an LLM-related error
+      const isLLMError = message.includes('API key') || 
+                        message.includes('rate limit') || 
+                        message.includes('model') ||
+                        message.includes('connect to') ||
+                        message.includes('provider') ||
+                        message.includes('parse questions') ||
+                        message.includes('OpenAI') ||
+                        message.includes('Anthropic') ||
+                        message.includes('Groq');
+
+      if (isLLMError) {
+        // Determine error type based on message content
+        let errorType: 'api_error' | 'auth_error' | 'rate_limit' | 'model_error' | 'network_error' | 'unknown' = 'unknown';
+        if (message.includes('API key') || message.includes('invalid') || message.includes('expired')) {
+          errorType = 'auth_error';
+        } else if (message.includes('rate limit')) {
+          errorType = 'rate_limit';
+        } else if (message.includes('model') || message.includes('not available')) {
+          errorType = 'model_error';
+        } else if (message.includes('connect') || message.includes('network')) {
+          errorType = 'network_error';
+        } else {
+          errorType = 'api_error';
+        }
+
+        setLLMError({
+          message,
+          provider: selectedProvider,
+          model: selectedModel,
+          type: errorType,
+          details: error.response?.data?.details || error.stack,
+        });
+      } else {
+        toast.error(message);
+      }
     },
   });
 
@@ -86,7 +126,43 @@ export const ChatInterface: React.FC = () => {
     onError: (error: any) => {
       setAutoSubmitting(false);
       const message = error.response?.data?.message || error.message || 'Failed to refine prompt';
-      toast.error(message);
+      
+      // Check if this is an LLM-related error
+      const isLLMError = message.includes('API key') || 
+                        message.includes('rate limit') || 
+                        message.includes('model') ||
+                        message.includes('connect to') ||
+                        message.includes('provider') ||
+                        message.includes('parse questions') ||
+                        message.includes('OpenAI') ||
+                        message.includes('Anthropic') ||
+                        message.includes('Groq');
+
+      if (isLLMError) {
+        // Determine error type based on message content
+        let errorType: 'api_error' | 'auth_error' | 'rate_limit' | 'model_error' | 'network_error' | 'unknown' = 'unknown';
+        if (message.includes('API key') || message.includes('invalid') || message.includes('expired')) {
+          errorType = 'auth_error';
+        } else if (message.includes('rate limit')) {
+          errorType = 'rate_limit';
+        } else if (message.includes('model') || message.includes('not available')) {
+          errorType = 'model_error';
+        } else if (message.includes('connect') || message.includes('network')) {
+          errorType = 'network_error';
+        } else {
+          errorType = 'api_error';
+        }
+
+        setLLMError({
+          message,
+          provider: selectedProvider,
+          model: selectedModel,
+          type: errorType,
+          details: error.response?.data?.details || error.stack,
+        });
+      } else {
+        toast.error(message);
+      }
     },
   });
 
@@ -113,6 +189,19 @@ export const ChatInterface: React.FC = () => {
       }
     }
   };
+
+  // Fetch providers on mount
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const providerData = await apiService.getProviders();
+        setProviders(providerData.map(p => ({ id: p.id, name: p.displayName, isAvailable: p.isAvailable ?? false })));
+      } catch (error) {
+        console.error('Failed to fetch providers:', error);
+      }
+    };
+    fetchProviders();
+  }, []);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -158,6 +247,25 @@ export const ChatInterface: React.FC = () => {
 
   const handleAutoSubmit = () => {
     refinePromptMutation.mutate();
+  };
+
+  const handleLLMErrorRetry = () => {
+    setLLMError(null);
+    if (session) {
+      refinePromptMutation.mutate();
+    } else {
+      createSessionMutation.mutate(prompt);
+    }
+  };
+
+  const handleLLMErrorSwitchProvider = () => {
+    setLLMError(null);
+    // You can navigate to provider selection or show provider selector here
+    toast('Please select a different provider from the settings');
+  };
+
+  const handleLLMErrorClose = () => {
+    setLLMError(null);
   };
 
   const allQuestionsAnswered = questions.every(q => 
@@ -374,6 +482,18 @@ export const ChatInterface: React.FC = () => {
           )}
         </motion.div>
       </div>
+
+      {/* LLM Error Modal */}
+      {llmError && (
+        <LLMErrorModal
+          isOpen={!!llmError}
+          onClose={handleLLMErrorClose}
+          error={llmError}
+          onRetry={handleLLMErrorRetry}
+          onSwitchProvider={handleLLMErrorSwitchProvider}
+          availableProviders={providers}
+        />
+      )}
     </div>
   );
 }; 

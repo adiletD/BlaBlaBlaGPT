@@ -2,6 +2,7 @@ import { ILLMProvider, LLMProvider, LLMProviderType } from '../types';
 import { PROVIDER_CONFIGS } from '../config';
 import { OpenAIProvider } from './openai';
 import { AnthropicProvider } from './anthropic';
+import { GroqProvider } from './groq';
 import config from '../config';
 
 export class LLMProviderFactory {
@@ -31,6 +32,12 @@ export class LLMProviderFactory {
     if (config.llmProviders.anthropic?.apiKey) {
       console.log('anthropic provider is initialized');
       this.providers.set('anthropic', new AnthropicProvider());
+    }
+
+    // Initialize Groq provider
+    if (config.llmProviders.groq?.apiKey) {
+      console.log('groq provider is initialized');
+      this.providers.set('groq', new GroqProvider());
     }
 
     // TODO: Add Google and Ollama providers

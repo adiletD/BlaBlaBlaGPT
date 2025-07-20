@@ -1,381 +1,354 @@
-# How to Create Task Tickets
+# How to Create Comprehensive Task Tickets
 
-This guide provides a structured approach to creating task tickets for the BlaBlaBlaGPT prompt refinement application. Use this template every time you need to add a feature, fix a bug, or make improvements.
+This guide provides a principle-based approach to creating thorough, well-researched task tickets. The goal is to deeply understand problems, explore solution spaces, and create tickets that enable excellent implementation outcomes.
 
-## Project Overview
+## Core Principles
 
-**BlaBlaBlaGPT** is a prompt refinement application with:
+### 1. **Deep Problem Understanding**
 
-- **Frontend**: React + TypeScript + Vite + Tailwind CSS
-- **Backend**: Node.js + TypeScript + Express
-- **Architecture**: Multi-provider AI integration (OpenAI, Anthropic)
-- **Key Features**: Prompt refinement, question suggestions, provider selection
+- Investigate the root cause, not just symptoms
+- Understand the full context and ecosystem impact
+- Research similar problems and existing solutions
+- Question assumptions and explore alternative framings
 
-## Ticket Creation Steps
+### 2. **Solution Space Exploration**
 
-### 1. **Analyze the Feature/Task**
+- Consider multiple approaches before settling on one
+- Evaluate trade-offs systematically
+- Think about future implications and extensibility
+- Don't limit creativity with premature constraints
 
-Before creating a ticket, understand:
+### 3. **User-Centric Value Focus**
 
-- **User Need**: What problem does this solve?
-- **User Journey**: How will users interact with this feature?
-- **Business Value**: Why is this important?
-- **Technical Impact**: What parts of the system are affected?
+- Start with user needs and pain points
+- Validate assumptions about user behavior
+- Consider diverse user scenarios and edge cases
+- Measure success in terms of user outcomes
 
-### 2. **Choose Ticket Type**
+### 4. **System-Wide Thinking**
 
-- 🆕 **Feature**: New functionality
-- 🐛 **Bug**: Fix existing issues
-- 🔧 **Enhancement**: Improve existing features
-- 📚 **Documentation**: Update docs or comments
-- 🏗️ **Technical Debt**: Refactoring, optimization
-- 🧪 **Testing**: Add/improve tests
+- Consider ripple effects across the entire system
+- Think about integration points and dependencies
+- Evaluate performance, security, and scalability implications
+- Plan for observability and monitoring
 
-### 3. **Write the Ticket Title**
+## Comprehensive Ticket Creation Process
 
-Format: `ticket_<ticket number>_<feature name shortly>`
+### Phase 1: Discovery & Research
 
-Where:
+#### 1.1 Problem Investigation
 
-- **ticket number**: Sequential number that increments with each new ticket (e.g., 001, 002, 003...). Always use the next available number in sequence.
-- **feature name shortly**: Brief description of the feature/fix (use underscores instead of spaces)
+**Deep Dive Questions:**
 
-**Examples:**
+- What is the fundamental problem we're solving?
+- Who experiences this problem and in what contexts?
+- What are the current workarounds or pain points?
+- How does this fit into the broader user journey?
+- What similar problems exist in the industry?
+- What solutions have others tried?
 
-- `ticket_001_conversation_history_sidebar`
-- `ticket_002_fix_provider_switching_bug`
-- `ticket_003_improve_prompt_validation`
+**Research Activities:**
 
-### 4. **Define the Problem/Opportunity**
+- User interviews or feedback analysis
+- Competitive analysis and benchmarking
+- Technical research on existing solutions
+- Architecture and codebase exploration
+- Performance and usage data analysis
+
+#### 1.2 Context Mapping
+
+- Identify all stakeholders (users, developers, system components)
+- Map current state vs. desired future state
+- Document assumptions and unknowns
+- Identify constraints and opportunities
+- Consider timing and resource implications
+
+### Phase 2: Solution Design
+
+#### 2.1 Solution Space Exploration
+
+**Approach Generation:**
+
+- Brainstorm multiple solution approaches
+- Consider incremental vs. revolutionary changes
+- Evaluate build vs. buy vs. integrate options
+- Think about different architectural patterns
+- Consider various user experience approaches
+
+**Evaluation Criteria:**
+
+- User value and experience quality
+- Technical feasibility and complexity
+- Resource requirements and timeline
+- Maintenance and operational burden
+- Future flexibility and extensibility
+- Risk assessment and mitigation
+
+#### 2.2 Technical Architecture
+
+- Design system interactions and data flow
+- Consider scalability and performance implications
+- Plan for error handling and edge cases
+- Design for testability and maintainability
+- Consider security and privacy implications
+- Plan observability and monitoring strategy
+
+### Phase 3: Specification & Planning
+
+#### 3.1 Requirements Definition
+
+**Functional Requirements:**
+
+- Core functionality and user interactions
+- Data requirements and constraints
+- Integration requirements
+- Business logic and rules
+
+**Non-Functional Requirements:**
+
+- Performance and scalability targets
+- Security and privacy requirements
+- Accessibility and inclusivity standards
+- Compatibility and device support
+- Reliability and availability expectations
+
+#### 3.2 Success Metrics
+
+- Define measurable success criteria
+- Identify key performance indicators
+- Plan for data collection and analysis
+- Consider both quantitative and qualitative measures
+- Set up feedback loops for continuous improvement
+
+### Phase 4: Implementation Strategy
+
+#### 4.1 Approach Selection
+
+- Document the chosen approach and rationale
+- Explain why other approaches were not selected
+- Identify potential pivots or adaptations
+- Plan for iterative development and learning
+
+#### 4.2 Risk Management
+
+- Identify technical and business risks
+- Plan mitigation strategies
+- Consider fallback options
+- Plan for monitoring and early detection
+
+## Ticket Structure (Adaptive Framework)
+
+Use this as a flexible framework, adapting sections based on the specific context and complexity of your task:
 
 ```markdown
-## Problem Statement
+# [Descriptive Title That Captures the Core Value]
 
-Clearly describe what needs to be addressed:
+## Executive Summary
 
-- Current state vs desired state
-- User pain points
-- Technical limitations
-```
+Brief overview of the problem, proposed solution, and expected impact.
 
-### 5. **Specify Requirements**
+## Problem Analysis
 
-```markdown
-## Requirements
+### Root Cause Investigation
+
+- What is the fundamental problem?
+- Why does this problem exist?
+- What are the contributing factors?
+
+### User Impact Assessment
+
+- Who is affected and how?
+- What are the current pain points?
+- What is the business/user value of solving this?
+
+### Research Findings
+
+- What solutions exist in the market?
+- What approaches have we tried before?
+- What can we learn from similar problems?
+
+## Solution Design
+
+### Approach Options Considered
+
+[Document 2-3 different approaches with pros/cons]
+
+### Recommended Approach
+
+- Why this approach was selected
+- How it addresses the core problem
+- What makes it superior to alternatives
+
+### Technical Architecture
+
+- System design and integration points
+- Data flow and processing logic
+- Error handling and edge case management
+- Performance and scalability considerations
+
+## Requirements & Specifications
+
+### User Experience Requirements
+
+- User journey and interaction patterns
+- Accessibility and usability requirements
+- Multi-device and responsive considerations
 
 ### Functional Requirements
 
-- [ ] Specific behavior the feature must have
-- [ ] User interactions and expected responses
-- [ ] Data requirements and constraints
+- Core features and capabilities
+- Business logic and rules
+- Data requirements and validation
 
-### Non-Functional Requirements
+### Technical Requirements
 
-- [ ] Performance expectations
-- [ ] Accessibility requirements
-- [ ] Browser compatibility
-- [ ] Mobile responsiveness (if applicable)
+- Performance and scalability targets
+- Security and privacy requirements
+- Integration and compatibility needs
+- Monitoring and observability needs
+
+## Success Criteria
+
+### Acceptance Criteria
+
+[Specific, testable criteria using Given-When-Then or other formats]
+
+### Success Metrics
+
+- Key performance indicators
+- User satisfaction measures
+- Technical performance targets
+- Business impact measurements
+
+## Implementation Planning
+
+### Development Strategy
+
+- Iterative approach and milestones
+- Risk mitigation plans
+- Testing and validation strategy
+- Rollout and deployment plan
+
+### Dependencies & Constraints
+
+- Technical dependencies
+- Resource and timeline constraints
+- External dependencies
+- Risk factors and mitigation plans
+
+## Testing & Validation
+
+### Testing Strategy
+
+- Unit, integration, and end-to-end testing approaches
+- Performance and load testing requirements
+- Security and penetration testing needs
+- Accessibility and usability testing plans
+
+### Validation Approach
+
+- How will we validate the solution works?
+- What feedback loops will we establish?
+- How will we measure success post-launch?
+
+## Long-term Considerations
+
+### Maintenance & Operations
+
+- Ongoing operational requirements
+- Monitoring and alerting strategy
+- Documentation and knowledge transfer needs
+
+### Future Evolution
+
+- How might this evolve in the future?
+- What extension points should we consider?
+- How does this fit into the broader roadmap?
 ```
 
-### 6. **Write Acceptance Criteria**
+## Best Practices for Excellence
 
-Use the **Given-When-Then** format:
+### Research-Driven Development
 
-```markdown
-## Acceptance Criteria
+- Invest time in understanding before building
+- Challenge assumptions with data and research
+- Learn from existing solutions and patterns
+- Consider multiple perspectives and use cases
 
-### Scenario 1: [Description]
+### Systematic Thinking
 
-- **Given** initial conditions
-- **When** user performs action
-- **Then** expected outcome
+- Think in systems, not just features
+- Consider second and third-order effects
+- Plan for failure modes and edge cases
+- Design for change and evolution
 
-### Scenario 2: [Description]
+### User-Centric Focus
 
-- **Given** different conditions
-- **When** user performs different action
-- **Then** different expected outcome
-```
+- Start with user needs, not technical capabilities
+- Validate assumptions about user behavior
+- Consider diverse user scenarios and contexts
+- Measure success in user outcomes
 
-### 7. **Technical Considerations**
+### Technical Excellence
 
-```markdown
-## Technical Implementation
+- Design for maintainability and extensibility
+- Consider performance from the beginning
+- Plan for observability and debugging
+- Think about security and privacy implications
 
-### Frontend Changes
+### Collaborative Approach
 
-- [ ] Components to create/modify
-- [ ] State management updates
-- [ ] Styling requirements
-- [ ] API integration needs
+- Involve relevant stakeholders in the process
+- Seek diverse perspectives and expertise
+- Document decisions and reasoning clearly
+- Create shared understanding across the team
 
-### Backend Changes
+## Anti-Patterns to Avoid
 
-- [ ] New endpoints or routes
-- [ ] Database schema changes
-- [ ] Service layer updates
-- [ ] Provider integration updates
+### Rushed Analysis
 
-### Shared Changes
+- Jumping to solutions without understanding problems
+- Assuming you know what users want
+- Copying solutions without understanding context
+- Ignoring edge cases and failure modes
 
-- [ ] Type definitions
-- [ ] Validation schemas
-- [ ] Error handling
-```
+### Over-Specification
 
-### 8. **Dependencies and Constraints**
+- Being too prescriptive about implementation details
+- Limiting creative problem-solving approaches
+- Assuming one-size-fits-all solutions
+- Ignoring context-specific considerations
 
-```markdown
-## Dependencies
+### Narrow Thinking
 
-- [ ] Other tickets that must be completed first
-- [ ] External API changes
-- [ ] Design requirements
-- [ ] Third-party library updates
+- Focusing only on happy path scenarios
+- Ignoring system-wide implications
+- Thinking only about immediate needs
+- Considering only technical aspects
 
-## Constraints
+## Adaptation Guidelines
 
-- [ ] Time limitations
-- [ ] Resource constraints
-- [ ] Technical limitations
-- [ ] Budget considerations
-```
+This framework should be adapted based on:
 
-### 9. **Testing Strategy**
+**Task Complexity:**
 
-```markdown
-## Testing Requirements
+- Simple tasks may need fewer sections
+- Complex features may need deeper analysis
+- Research tickets may focus more on investigation
+- Bug fixes may emphasize root cause analysis
 
-### Unit Tests
+**Project Context:**
 
-- [ ] Component testing (Frontend)
-- [ ] Service testing (Backend)
-- [ ] Utility function testing
+- Startup vs. enterprise considerations
+- Greenfield vs. legacy system implications
+- Team size and expertise considerations
+- Timeline and resource constraints
 
-### Integration Tests
+**Domain Specificity:**
 
-- [ ] API endpoint testing
-- [ ] Provider integration testing
-- [ ] End-to-end user flows
+- User-facing features vs. internal tools
+- Performance-critical vs. feature-rich requirements
+- Security-sensitive vs. convenience-focused features
+- Real-time vs. batch processing considerations
 
-### Manual Testing
-
-- [ ] Browser testing checklist
-- [ ] Mobile device testing
-- [ ] Accessibility testing
-```
-
-### 10. **Definition of Done**
-
-```markdown
-## Definition of Done
-
-- [ ] All acceptance criteria met
-- [ ] Code reviewed and approved
-- [ ] Tests written and passing
-- [ ] Documentation updated
-- [ ] No breaking changes to existing functionality
-- [ ] Performance requirements met
-- [ ] Accessibility standards met
-- [ ] Cross-browser testing completed
-```
-
-## Ticket Template
-
-Copy and customize this template for each new ticket (replace XXX with the next sequential number):
-
-```markdown
-# ticket_XXX_feature_name_shortly
-
-## Problem Statement
-
-[Describe the current problem or opportunity]
-
-## Requirements
-
-### Functional Requirements
-
-- [ ] Requirement 1
-- [ ] Requirement 2
-
-### Non-Functional Requirements
-
-- [ ] Performance requirement
-- [ ] Accessibility requirement
-
-## Acceptance Criteria
-
-### Scenario 1: [Name]
-
-- **Given** [initial condition]
-- **When** [action performed]
-- **Then** [expected result]
-
-## Technical Implementation
-
-### Frontend Changes
-
-- [ ] Component changes needed
-- [ ] State management updates
-
-### Backend Changes
-
-- [ ] API changes needed
-- [ ] Service updates
-
-### Shared Changes
-
-- [ ] Type definition updates
-
-## Dependencies
-
-- [ ] Dependent ticket/task
-
-## Testing Requirements
-
-- [ ] Unit tests for new functionality
-- [ ] Integration tests for API changes
-- [ ] Manual testing scenarios
-
-## Definition of Done
-
-- [ ] All acceptance criteria met
-- [ ] Code reviewed
-- [ ] Tests passing
-- [ ] Documentation updated
-```
-
-## Best Practices
-
-### ✅ Do
-
-- Keep tickets focused on a single feature/fix
-- Write clear, actionable acceptance criteria
-- Include relevant technical context
-- Consider edge cases and error scenarios
-- Estimate complexity and time requirements
-- Link related tickets
-- Use consistent terminology
-
-### ❌ Don't
-
-- Create overly broad tickets
-- Skip acceptance criteria
-- Ignore dependencies
-- Forget about testing requirements
-- Make assumptions about technical implementation
-- Skip the problem statement
-- Use vague language
-
-## Project-Specific Considerations
-
-### BlaBlaBlaGPT Architecture
-
-- **Provider Pattern**: Consider impact on multiple AI providers
-- **State Management**: Check if global state needs updates
-- **Type Safety**: Ensure TypeScript types are updated
-- **Error Handling**: Consider provider-specific error scenarios
-- **Session Management**: Think about user session implications
-
-### Common Integration Points
-
-- `/src/providers/` - AI provider integrations
-- `/src/services/` - Business logic services
-- `/src/components/` - UI components
-- `/src/store/` - Global state management
-- `/shared/types.ts` - Shared type definitions
-
-### Testing Considerations
-
-- Mock AI provider responses for consistent testing
-- Test provider switching scenarios
-- Validate prompt refinement accuracy
-- Check session persistence
-- Test error recovery flows
-
----
-
-## Example Ticket
-
-```markdown
-# ticket_004_prompt_history_with_search
-
-## Problem Statement
-
-Users currently lose their previous prompts when they refresh the page or start a new session. This creates frustration as they cannot reference or reuse successful prompts from earlier sessions.
-
-## Requirements
-
-### Functional Requirements
-
-- [ ] Store prompt history locally in browser
-- [ ] Display last 50 prompts in sidebar
-- [ ] Allow users to search through history
-- [ ] Enable clicking to reuse previous prompts
-- [ ] Show timestamp and provider used for each prompt
-
-### Non-Functional Requirements
-
-- [ ] Search results appear within 100ms
-- [ ] History persists across browser sessions
-- [ ] Graceful degradation if localStorage is unavailable
-
-## Acceptance Criteria
-
-### Scenario 1: Viewing Prompt History
-
-- **Given** user has submitted prompts in previous sessions
-- **When** user opens the application
-- **Then** they see a history sidebar with previous prompts
-
-### Scenario 2: Searching History
-
-- **Given** user has prompt history
-- **When** user types in the search box
-- **Then** history filters to show matching prompts in real-time
-
-### Scenario 3: Reusing Previous Prompt
-
-- **Given** user views their prompt history
-- **When** user clicks on a previous prompt
-- **Then** it populates the main input field with that prompt text
-
-## Technical Implementation
-
-### Frontend Changes
-
-- [ ] Create PromptHistory component
-- [ ] Add search functionality with debouncing
-- [ ] Integrate with sessionStorage service
-- [ ] Update layout to accommodate sidebar
-
-### Backend Changes
-
-- [ ] No backend changes required (client-side only)
-
-### Shared Changes
-
-- [ ] Add PromptHistoryItem type definition
-- [ ] Update storage interface types
-
-## Dependencies
-
-- [ ] None
-
-## Testing Requirements
-
-- [ ] Unit tests for PromptHistory component
-- [ ] Unit tests for search filtering logic
-- [ ] Integration tests for localStorage persistence
-- [ ] Manual testing across different browsers
-
-## Definition of Done
-
-- [ ] All acceptance criteria met
-- [ ] Component tests written and passing
-- [ ] Cross-browser testing completed
-- [ ] No performance impact on main application
-- [ ] Accessibility requirements met (keyboard navigation, screen readers)
-```
-
-Use this guide as your go-to resource for creating consistent, comprehensive task tickets that lead to successful feature development!
+Remember: The goal is deep understanding and thoughtful solution design, not rigid adherence to templates. Adapt this framework to serve your specific context and needs.

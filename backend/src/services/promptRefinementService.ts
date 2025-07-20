@@ -138,10 +138,15 @@ export class PromptRefinementService {
     llmProvider: string, 
     model?: string
   ): Promise<Question[]> {
+    console.log(`Generating questions with provider: ${llmProvider}, model: ${model || 'default'}`);
+    
     const provider = llmProviderFactory.getProvider(llmProvider);
     if (!provider) {
+      console.error(`LLM provider '${llmProvider}' is not available`);
       throw new Error(`LLM provider '${llmProvider}' is not available`);
     }
+
+    console.log(`Provider found: ${provider.displayName}, maxQuestions: ${config.maxQuestionsPerSession}`);
 
     const options: GenerationOptions = {
       model,
@@ -150,7 +155,14 @@ export class PromptRefinementService {
       categories: ['clarity', 'specificity', 'context', 'constraints'],
     };
 
-    return await provider.generateQuestions(prompt, options);
+    try {
+      const questions = await provider.generateQuestions(prompt, options);
+      console.log(`Generated ${questions.length} questions successfully`);
+      return questions;
+    } catch (error) {
+      console.error('Question generation failed:', error);
+      throw error;
+    }
   }
 
   async deleteSession(sessionId: string): Promise<void> {
