@@ -274,15 +274,15 @@ export const ChatInterface: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 h-[calc(100vh-12rem)]">
+      <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-0 h-[calc(100vh-12rem)]">
         {/* Left Side - Prompt Input */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="section p-8 flex flex-col border-r border-gray-100"
+          className="section p-8 flex flex-col"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 -mt-10">
             <h3 className="text-lg font-semibold text-black">
               Your Prompt
             </h3>
@@ -406,8 +406,8 @@ export const ChatInterface: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-col space-y-6"
         >
-          <div className="section p-8 flex-1 flex flex-col">
-            <h3 className="text-lg font-semibold text-black mb-6">
+          <div className="section pl-2 pr-8 py-8 flex-1 flex flex-col overflow-visible">
+            <h3 className="text-lg font-semibold text-black mb-6 -mt-10">
               Refinement Questions
             </h3>
             

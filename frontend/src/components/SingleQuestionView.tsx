@@ -226,20 +226,18 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
         Skip to question
       </a>
       
-      <div className="flex gap-4 mb-4">
-        {/* Vertical Timeline */}
-        <div className="flex flex-col items-center space-y-1 pt-6">
-          <div className="text-xs text-gray-500 mb-1">Progress</div>
-          <div className="flex flex-col space-y-2" role="group" aria-label="Question progress indicators">
+      {/* Progress Bar as Divider */}
+      <div className="absolute left-1/2 transform -translate-x-1/2 top-0 h-full">
+        <div className="flex flex-col items-center space-y-2 pt-16 h-full" role="group" aria-label="Question progress indicators">
             {questions.map((_, index) => (
               <div key={index} className="flex flex-col items-center">
                 <button
                   onClick={() => setCurrentQuestionIndex(index)}
-                  className={`w-4 h-4 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                  className={`w-4 h-4 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 ${
                     index === currentQuestionIndex
-                      ? 'bg-primary-600 ring-2 ring-primary-200'
+                      ? 'bg-black ring-2 ring-gray-300'
                       : answers.find(a => a.questionId === questions[index].id)
-                      ? 'bg-green-500'
+                      ? 'bg-gray-600'
                       : 'bg-gray-300'
                   }`}
                   aria-label={`Go to question ${index + 1}${
@@ -255,9 +253,10 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1">
+      {/* Main Content */}
+      <div className="w-full pl-8">
 
 
       {/* Question Display */}
@@ -288,30 +287,15 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
                 const isSelected = currentAnswer?.response === option;
                 const isDefault = index === (currentQuestion.defaultOption || 1);
                 
-                // Color scheme based on position
+                // Uniform white styling with black borders
                 const getButtonStyles = () => {
-                  if (index === 0) {
-                    // First option - blue theme
-                    return isSelected 
-                      ? 'bg-blue-600 text-white shadow-lg' 
-                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200';
-                  } else if (index === 1) {
-                    // Middle option - green theme (default)
-                    return isSelected 
-                      ? 'bg-green-600 text-white shadow-lg' 
-                      : 'bg-green-100 text-green-700 hover:bg-green-200';
-                  } else {
-                    // Third option - purple theme
-                    return isSelected 
-                      ? 'bg-purple-600 text-white shadow-lg' 
-                      : 'bg-purple-100 text-purple-700 hover:bg-purple-200';
-                  }
+                  return isSelected 
+                    ? 'bg-gray-100 text-black border-2 border-black shadow-lg' 
+                    : 'bg-white text-black border border-black hover:bg-gray-50';
                 };
                 
                 const getRingColor = () => {
-                  if (index === 0) return 'focus:ring-blue-300';
-                  if (index === 1) return 'focus:ring-green-300';
-                  return 'focus:ring-purple-300';
+                  return 'focus:ring-gray-300';
                 };
 
                 return (
