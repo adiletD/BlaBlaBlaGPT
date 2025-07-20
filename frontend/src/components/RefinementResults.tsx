@@ -37,7 +37,7 @@ export const RefinementResults: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="card-section p-8"
+        className="section-elevated p-8"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Original Prompt */}
@@ -45,7 +45,7 @@ export const RefinementResults: React.FC = () => {
             <h3 className="text-xl font-semibold text-black mb-4">
               Original Prompt
             </h3>
-            <div className="bg-white rounded-lg p-4 h-32 overflow-y-auto border border-gray-200 shadow-minimal">
+            <div className="bg-white rounded-lg p-4 h-32 overflow-y-auto border border-gray-100">
               <p className="text-gray-700 text-sm">
                 {session?.originalPrompt}
               </p>
@@ -57,7 +57,7 @@ export const RefinementResults: React.FC = () => {
             <h3 className="text-xl font-semibold text-black mb-4">
               Refined Prompt
             </h3>
-            <div className="bg-gray-50 rounded-lg p-4 h-32 overflow-y-auto border border-gray-200 shadow-minimal">
+            <div className="bg-gray-50 rounded-lg p-4 h-32 overflow-y-auto border border-gray-100">
               <p className="text-gray-700 text-sm">
                 {session?.refinedPrompt || 'No refined prompt available'}
               </p>

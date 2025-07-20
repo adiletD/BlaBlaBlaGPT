@@ -92,11 +92,11 @@ export const PromptInput: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="card-section p-8"
+        className="section-elevated p-8"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="prompt" className="block text-sm font-medium text-black mb-2">
+            <label htmlFor="prompt" className="block text-sm font-medium text-black mb-3">
               Your Initial Prompt
             </label>
             <textarea
@@ -104,7 +104,7 @@ export const PromptInput: React.FC = () => {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter your prompt here... (e.g., 'Write a blog post about artificial intelligence')"
-              className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none shadow-minimal transition-all duration-200"
+              className="w-full h-32 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none transition-all duration-200"
               disabled={createSessionMutation.isPending}
             />
             <div className="mt-2 flex justify-between items-center">
@@ -163,7 +163,7 @@ export const PromptInput: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.1 * index }}
               onClick={() => handleExampleClick(example)}
-              className="text-left p-3 bg-white hover:bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200 text-sm shadow-minimal hover:shadow-interactive"
+              className="text-left p-3 bg-white hover:bg-gray-50 rounded-lg border border-gray-100 transition-all duration-200 text-sm"
               disabled={createSessionMutation.isPending}
             >
               "{example}"

@@ -25,30 +25,30 @@ export const QuestionRefinement: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="card-section p-8"
+        className="section-elevated p-8"
       >
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-black mb-4">
+          <h3 className="text-xl font-semibold text-black mb-6">
             Original Prompt
           </h3>
-          <div className="bg-gray-50 rounded-lg p-4 mb-8 shadow-minimal">
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
             <p className="text-gray-700 italic">
               "{session?.originalPrompt}"
             </p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           {questions.map((question, index) => (
             <motion.div
               key={question.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * index }}
-              className="bg-white rounded-lg p-6 border border-gray-200 shadow-card"
+              className="bg-white rounded-lg p-6 border border-gray-100"
             >
               <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
+                <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border border-gray-100">
                   <span className="text-sm font-medium text-black">
                     {index + 1}
                   </span>
@@ -63,10 +63,10 @@ export const QuestionRefinement: React.FC = () => {
                     </p>
                   )}
                   <div className="flex space-x-3">
-                    <button className="px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-50 transition-all duration-200 shadow-minimal hover:shadow-interactive">
+                    <button className="px-4 py-2 bg-white text-black rounded-md border border-gray-100 hover:bg-gray-50 transition-all duration-200">
                       Yes
                     </button>
-                    <button className="px-4 py-2 bg-white text-black rounded-md border border-gray-300 hover:bg-gray-50 transition-all duration-200 shadow-minimal hover:shadow-interactive">
+                    <button className="px-4 py-2 bg-white text-black rounded-md border border-gray-100 hover:bg-gray-50 transition-all duration-200">
                       No
                     </button>
                   </div>

@@ -274,13 +274,13 @@ export const ChatInterface: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-12rem)]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 h-[calc(100vh-12rem)]">
         {/* Left Side - Prompt Input */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="card-section p-6 flex flex-col"
+          className="section p-8 flex flex-col border-r border-gray-100"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-black">
@@ -290,7 +290,7 @@ export const ChatInterface: React.FC = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={handleCopyPrompt}
-                  className="p-2 text-gray-600 hover:text-black transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-gray-200 bg-white"
+                  className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
                   title="Copy prompt"
                 >
                   <Copy className="h-4 w-4" />
@@ -298,7 +298,7 @@ export const ChatInterface: React.FC = () => {
                 {!isEditingPrompt ? (
                   <button
                     onClick={handleEditPrompt}
-                    className="p-2 text-gray-600 hover:text-black transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-gray-200 bg-white"
+                    className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
                     title="Edit prompt"
                   >
                     <Edit3 className="h-4 w-4" />
@@ -307,14 +307,14 @@ export const ChatInterface: React.FC = () => {
                   <div className="flex space-x-1">
                     <button
                       onClick={handleSavePrompt}
-                      className="p-2 text-green-700 hover:text-green-800 transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-green-200 bg-green-50"
+                      className="p-2 text-green-700 hover:text-green-800 transition-colors rounded-md border border-green-100 bg-green-50 hover:bg-green-100"
                       title="Save changes"
                     >
                       <Save className="h-4 w-4" />
                     </button>
                     <button
                       onClick={handleCancelEdit}
-                      className="p-2 text-red-700 hover:text-red-800 transition-colors shadow-minimal hover:shadow-interactive rounded-md border border-red-200 bg-red-50"
+                      className="p-2 text-red-700 hover:text-red-800 transition-colors rounded-md border border-red-100 bg-red-50 hover:bg-red-100"
                       title="Cancel edit"
                     >
                       <X className="h-4 w-4" />
@@ -328,7 +328,7 @@ export const ChatInterface: React.FC = () => {
           {session && !isEditingPrompt ? (
             <div className="flex-1 space-y-4 overflow-y-auto">
               {session?.refinedPrompt && (
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 shadow-minimal">
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-black font-medium text-sm">✨ Refined Prompt</span>
                     <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded border">Latest</span>
@@ -338,7 +338,7 @@ export const ChatInterface: React.FC = () => {
                   </p>
                 </div>
               )}
-              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-minimal">
+              <div className="bg-white rounded-lg p-4 border border-gray-100">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-gray-600 font-medium text-sm">📝 Original Prompt</span>
                 </div>
@@ -352,7 +352,7 @@ export const ChatInterface: React.FC = () => {
               <textarea
                 value={editedPrompt}
                 onChange={(e) => setEditedPrompt(e.target.value)}
-                className="flex-1 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none shadow-minimal"
+                className="flex-1 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none"
                 placeholder="Enter your prompt here..."
               />
               <div className="text-sm text-gray-500">
@@ -365,7 +365,7 @@ export const ChatInterface: React.FC = () => {
                 value={prompt}
                 onChange={(e) => handlePromptChange(e.target.value)}
                 placeholder="Type your initial prompt here and watch the questions appear on the right..."
-                className="flex-1 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none shadow-minimal transition-all duration-200"
+                className="flex-1 p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none transition-all duration-200"
                 disabled={createSessionMutation.isPending}
               />
               <div className="flex justify-between items-center">
@@ -406,8 +406,8 @@ export const ChatInterface: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-col space-y-6"
         >
-          <div className="card-section p-6 flex-1 flex flex-col">
-            <h3 className="text-lg font-semibold text-black mb-4">
+          <div className="section p-8 flex-1 flex flex-col">
+            <h3 className="text-lg font-semibold text-black mb-6">
               Refinement Questions
             </h3>
             
@@ -445,9 +445,9 @@ export const ChatInterface: React.FC = () => {
           </div>
 
           {questions.length > 0 && (
-            <div className="card-section p-6">
+            <div className="section pt-6 border-t border-gray-100">
               {(isAutoSubmitting || allQuestionsAnswered) && (
-                <div className="mb-4 text-center">
+                <div className="mb-6 text-center">
                   <p className="text-sm text-gray-600">
                     {isAutoSubmitting 
                       ? "Auto-generating your refined prompt..."
