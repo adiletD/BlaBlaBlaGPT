@@ -20,6 +20,8 @@ interface RefinementState {
     type?: 'api_error' | 'auth_error' | 'rate_limit' | 'model_error' | 'network_error' | 'unknown';
   } | null;
   isAutoSubmitting: boolean;
+  answeredCount: number;
+  autoRefinementCallback: (() => void) | null;
 }
 
 interface RefinementActions {
@@ -38,6 +40,7 @@ interface RefinementActions {
   setError: (error: string | null) => void;
   setLLMError: (error: RefinementState['llmError']) => void;
   setAutoSubmitting: (autoSubmitting: boolean) => void;
+  setAutoRefinementCallback: (callback: (() => void) | null) => void;
   reset: () => void;
   initializeProvider: (defaultProvider: string) => void;
   validateAndUpdateModel: (availableModels: string[]) => void;
@@ -55,6 +58,8 @@ const initialState: RefinementState = {
   error: null,
   llmError: null,
   isAutoSubmitting: false,
+  answeredCount: 0,
+  autoRefinementCallback: null,
 };
 
 export const useRefinementStore = create<RefinementState & RefinementActions>()(
@@ -65,23 +70,39 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       setCurrentStep: (step) => set({ currentStep: step }),
       setSelectedProvider: (provider) => set({ selectedProvider: provider }),
       setSelectedModel: (model) => set({ selectedModel: model }),
-      setQuestions: (questions) => set({ questions }),
-      setAnswers: (answers) => set({ answers }),
+      setQuestions: (questions) => set({ questions, answeredCount: 0 }),
+      setAnswers: (answers) => set({ answers, answeredCount: 0 }),
       addAnswer: (answer) =>
         set((state) => ({
           answers: [...state.answers.filter((a) => a.questionId !== answer.questionId), answer],
         })),
       updateAnswer: (questionId, response) => {
-        const existingAnswer = get().answers.find((a) => a.questionId === questionId);
+        const { answers, autoRefinementCallback } = get();
+        const existingAnswer = answers.find((a) => a.questionId === questionId);
+        const isNewAnswer = !existingAnswer;
+        
         const newAnswer: Answer = {
           id: existingAnswer?.id || `answer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           questionId,
           response,
           timestamp: new Date(),
         };
+        
+        const newAnswers = [...answers.filter((a) => a.questionId !== questionId), newAnswer];
+        const newAnsweredCount = isNewAnswer ? get().answeredCount + 1 : get().answeredCount;
+        
         set((state) => ({
-          answers: [...state.answers.filter((a) => a.questionId !== questionId), newAnswer],
+          answers: newAnswers,
+          answeredCount: newAnsweredCount,
         }));
+        
+        // Trigger auto-refinement every 5th answer
+        if (isNewAnswer && newAnsweredCount > 0 && newAnsweredCount % 5 === 0 && autoRefinementCallback) {
+          console.log(`Auto-refining after ${newAnsweredCount} answers`);
+          setTimeout(() => {
+            autoRefinementCallback();
+          }, 1000); // Small delay for better UX
+        }
       },
       setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
       nextQuestion: () => {
@@ -100,6 +121,7 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       setError: (error) => set({ error }),
       setLLMError: (llmError) => set({ llmError }),
       setAutoSubmitting: (autoSubmitting) => set({ isAutoSubmitting: autoSubmitting }),
+      setAutoRefinementCallback: (callback) => set({ autoRefinementCallback: callback }),
       reset: () => set({ ...initialState }),
       initializeProvider: (defaultProvider) => {
         const { selectedProvider } = get();

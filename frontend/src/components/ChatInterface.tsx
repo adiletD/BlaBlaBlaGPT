@@ -23,13 +23,15 @@ export const ChatInterface: React.FC = () => {
     selectedProvider,
     selectedModel,
     llmError,
+    answeredCount,
     setSession,
     setQuestions,
     setAnswers,
     setCurrentQuestionIndex,
     setLLMError,
     isAutoSubmitting,
-    setAutoSubmitting
+    setAutoSubmitting,
+    setAutoRefinementCallback
   } = useRefinementStore();
 
   const createSessionMutation = useMutation({
@@ -203,6 +205,22 @@ export const ChatInterface: React.FC = () => {
     fetchProviders();
   }, []);
 
+  // Set up auto-refinement callback
+  useEffect(() => {
+    const callback = () => {
+      console.log('Auto-refinement triggered');
+      if (session && !refinePromptMutation.isPending) {
+        refinePromptMutation.mutate();
+      }
+    };
+    
+    setAutoRefinementCallback(callback);
+    
+    return () => {
+      setAutoRefinementCallback(null);
+    };
+  }, [session, setAutoRefinementCallback]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -286,6 +304,12 @@ export const ChatInterface: React.FC = () => {
             <h3 className="text-lg font-semibold text-black">
               Your Prompt
             </h3>
+            {refinePromptMutation.isPending && (
+              <div className="flex items-center space-x-2 text-sm text-blue-600">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Auto-refining...</span>
+              </div>
+            )}
             {session && (
               <div className="flex space-x-2">
                 <button
@@ -327,6 +351,13 @@ export const ChatInterface: React.FC = () => {
 
           {session && !isEditingPrompt ? (
             <div className="flex-1 space-y-4 overflow-y-auto">
+              {answeredCount > 0 && answeredCount % 5 === 0 && (
+                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                  <div className="text-sm text-green-700 font-medium">
+                    🔄 Auto-refined after {answeredCount} answers
+                  </div>
+                </div>
+              )}
               {session?.refinedPrompt && (
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
                   <div className="flex items-center gap-2 mb-2">

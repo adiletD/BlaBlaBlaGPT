@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUp, ArrowDown } from 'lucide-react';
 import { useRefinementStore } from '../store/refinementStore';
-import { Question, Answer } from '../types';
 
 // Add CSS for screen reader only content
 const srOnlyStyles = `
@@ -75,7 +73,6 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswer = answers.find(a => a.questionId === currentQuestion?.id);
-  const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
   // Set default answer to middle option if no answer exists
   useEffect(() => {
@@ -229,144 +226,121 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
       {/* Progress Bar as Divider */}
       <div className="absolute left-1/2 transform -translate-x-1/2 top-0 h-full">
         <div className="flex flex-col items-center space-y-2 pt-16 h-full" role="group" aria-label="Question progress indicators">
-            {questions.map((_, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <button
-                  onClick={() => setCurrentQuestionIndex(index)}
-                  className={`w-4 h-4 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 ${
-                    index === currentQuestionIndex
-                      ? 'bg-black ring-2 ring-gray-300'
-                      : answers.find(a => a.questionId === questions[index].id)
-                      ? 'bg-gray-600'
-                      : 'bg-gray-300'
-                  }`}
-                  aria-label={`Go to question ${index + 1}${
-                    index === currentQuestionIndex ? ' (current)' : ''
-                  }${
-                    answers.find(a => a.questionId === questions[index].id) ? ' (answered)' : ' (unanswered)'
-                  }`}
-                />
-                {index < questions.length - 1 && (
-                  <div className="w-px h-4 bg-gray-200 mt-1" aria-hidden="true" />
-                )}
-              </div>
-            ))}
-          </div>
+          {questions.map((_, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <button
+                onClick={() => setCurrentQuestionIndex(index)}
+                className={`w-4 h-4 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 ${
+                  index === currentQuestionIndex
+                    ? 'bg-black ring-2 ring-gray-300'
+                    : answers.find(a => a.questionId === questions[index].id)
+                    ? 'bg-gray-600'
+                    : 'bg-gray-300'
+                }`}
+                aria-label={`Go to question ${index + 1}${
+                  index === currentQuestionIndex ? ' (current)' : ''
+                }${
+                  answers.find(a => a.questionId === questions[index].id) ? ' (answered)' : ' (unanswered)'
+                }`}
+              />
+              {index < questions.length - 1 && (
+                <div className="w-px h-4 bg-gray-200 mt-1" aria-hidden="true" />
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="w-full pl-8">
-
-
-      {/* Question Display */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQuestion.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-          className=""
-          role="main"
-          aria-live="polite"
-        >
-          <div className="text-center mb-4">
-            
-            <h1 className="text-lg font-semibold text-gray-900 mb-3" id="current-question">
-              {currentQuestion.text}
-            </h1>
-          </div>
-
-          {/* Answer Options */}
-          <div className="space-y-4" role="group" aria-labelledby="current-question">
-            {/* 3 Option Buttons */}
-            <fieldset className="flex justify-center space-x-3">
-              <legend className="sr-only">Choose from the available options</legend>
-              {currentQuestion.options && currentQuestion.options.map((option, index) => {
-                const isSelected = currentAnswer?.response === option;
-                const isDefault = index === (currentQuestion.defaultOption || 1);
-                
-                // Uniform white styling with black borders
-                const getButtonStyles = () => {
-                  return isSelected 
-                    ? 'bg-gray-100 text-black border-2 border-black shadow-lg' 
-                    : 'bg-white text-black border border-black hover:bg-gray-50';
-                };
-                
-                const getRingColor = () => {
-                  return 'focus:ring-gray-300';
-                };
-
-                return (
-                  <button
-                    key={option}
-                    onClick={() => handleAnswer(option)}
-                    className={`px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 ${getButtonStyles()} ${getRingColor()}`}
-                    aria-pressed={isSelected}
-                  >
-                    {option}
-                    {isDefault && !isSelected && (
-                      <span className="ml-2 text-xs opacity-75">(default)</span>
-                    )}
-                  </button>
-                );
-              })}
-            </fieldset>
-
-            {/* Custom Answer Input */}
-            <div className="max-w-md mx-auto">
-              <form onSubmit={handleCustomSubmit} role="form">
-                <div className="flex space-x-3">
-                  <input
-                    ref={customInputRef}
-                    type="text"
-                    value={customAnswer}
-                    onChange={(e) => setCustomAnswer(e.target.value)}
-                    onFocus={() => setFocusedElement('custom')}
-                    placeholder="Or provide a custom answer..."
-                    className={`flex-1 px-3 py-2 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                      focusedElement === 'custom'
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-300 focus:border-primary-500'
-                    }`}
-                    aria-label="Provide a custom answer"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!customAnswer.trim()}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    aria-label="Submit custom answer"
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
+        {/* Question Display */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentQuestion.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className=""
+            role="main"
+            aria-live="polite"
+          >
+            <div className="text-center mb-4">
+              <h1 className="text-lg font-semibold text-gray-900 mb-3" id="current-question">
+                {currentQuestion.text}
+              </h1>
             </div>
 
-            {/* Auto-Submit Status */}
-            {isAutoSubmitting && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center p-4 bg-green-50 rounded-lg border border-green-200 max-w-md mx-auto"
-                role="status"
-                aria-live="polite"
-              >
-                <p className="text-sm text-green-800">
-                  ✨ <strong>Auto-generating refined prompt...</strong>
-                </p>
-              </motion.div>
-            )}
+            {/* Answer Options */}
+            <div className="space-y-4" role="group" aria-labelledby="current-question">
+              {/* 3 Option Buttons */}
+              <fieldset className="flex justify-center space-x-3">
+                <legend className="sr-only">Choose from the available options</legend>
+                {currentQuestion.options && currentQuestion.options.map((option, index) => {
+                  const isSelected = currentAnswer?.response === option;
+                  const isDefault = index === (currentQuestion.defaultOption || 1);
+                  
+                  // Uniform white styling with black borders
+                  const getButtonStyles = () => {
+                    return isSelected 
+                      ? 'bg-gray-100 text-black border-2 border-black shadow-lg' 
+                      : 'bg-white text-black border border-black hover:bg-gray-50';
+                  };
+                  
+                  const getRingColor = () => {
+                    return 'focus:ring-gray-300';
+                  };
 
+                  return (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer(option)}
+                      className={`px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 ${getButtonStyles()} ${getRingColor()}`}
+                      aria-pressed={isSelected}
+                    >
+                      {option}
+                      {isDefault && !isSelected && (
+                        <span className="ml-2 text-xs opacity-75">(default)</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </fieldset>
 
-          </div>
+              {/* Custom Answer Input */}
+              <div className="max-w-md mx-auto">
+                <form onSubmit={handleCustomSubmit} role="form">
+                  <div className="flex space-x-3">
+                    <input
+                      ref={customInputRef}
+                      type="text"
+                      value={customAnswer}
+                      onChange={(e) => setCustomAnswer(e.target.value)}
+                      onFocus={() => setFocusedElement('custom')}
+                      placeholder="Or provide a custom answer..."
+                      className={`flex-1 px-3 py-2 border-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+                        focusedElement === 'custom'
+                          ? 'border-primary-500 bg-primary-50'
+                          : 'border-gray-300 focus:border-primary-500'
+                      }`}
+                      aria-label="Provide a custom answer"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!customAnswer.trim()}
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      aria-label="Submit custom answer"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
 
-
-        </motion.div>
-      </AnimatePresence>
-        </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
-}; 
+};
