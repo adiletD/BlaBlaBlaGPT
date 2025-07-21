@@ -26,12 +26,14 @@ export const ChatInterface: React.FC = () => {
     answeredCount,
     setSession,
     setQuestions,
+    addQuestions,
     setAnswers,
     setCurrentQuestionIndex,
     setLLMError,
     isAutoSubmitting,
     setAutoSubmitting,
-    setAutoRefinementCallback
+    setAutoRefinementCallback,
+    setFetchQuestionsCallback
   } = useRefinementStore();
 
   const createSessionMutation = useMutation({
@@ -106,9 +108,38 @@ export const ChatInterface: React.FC = () => {
     },
   });
 
+  const generateQuestionsMutation = useMutation({
+    mutationFn: async () => {
+      if (!session) throw new Error('No session found');
+      
+      return apiService.generateQuestions(
+        session.refinedPrompt || session.originalPrompt,
+        selectedProvider || 'anthropic',
+        selectedModel
+      );
+    },
+    onSuccess: (newQuestions) => {
+      addQuestions(newQuestions);
+      toast.success(`Added ${newQuestions.length} new questions!`);
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || error.message || 'Failed to generate new questions';
+      console.error('Failed to generate questions:', error);
+      toast.error(message);
+    },
+  });
+
   const refinePromptMutation = useMutation({
     mutationFn: async () => {
       if (!session) throw new Error('No session found');
+      if (!selectedProvider) throw new Error('No provider selected');
+      
+      console.log('Refining prompt with:', { 
+        sessionId: session.id, 
+        answerCount: answers.length,
+        provider: selectedProvider,
+        model: selectedModel 
+      });
       
       return apiService.refinePrompt({
         sessionId: session.id,
@@ -207,9 +238,14 @@ export const ChatInterface: React.FC = () => {
 
   // Set up auto-refinement callback
   useEffect(() => {
+    if (!session || !selectedProvider) {
+      setAutoRefinementCallback(null);
+      return;
+    }
+    
     const callback = () => {
       console.log('Auto-refinement triggered');
-      if (session && !refinePromptMutation.isPending) {
+      if (!refinePromptMutation.isPending) {
         refinePromptMutation.mutate();
       }
     };
@@ -219,7 +255,28 @@ export const ChatInterface: React.FC = () => {
     return () => {
       setAutoRefinementCallback(null);
     };
-  }, [session, setAutoRefinementCallback]);
+  }, [session?.id, selectedProvider, setAutoRefinementCallback]);
+
+  // Set up fetch questions callback
+  useEffect(() => {
+    if (!session || !selectedProvider) {
+      setFetchQuestionsCallback(null);
+      return;
+    }
+    
+    const callback = () => {
+      console.log('Fetching new questions triggered');
+      if (!generateQuestionsMutation.isPending) {
+        generateQuestionsMutation.mutate();
+      }
+    };
+    
+    setFetchQuestionsCallback(callback);
+    
+    return () => {
+      setFetchQuestionsCallback(null);
+    };
+  }, [session?.id, selectedProvider, setFetchQuestionsCallback]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -351,10 +408,10 @@ export const ChatInterface: React.FC = () => {
 
           {session && !isEditingPrompt ? (
             <div className="flex-1 space-y-4 overflow-y-auto">
-              {answeredCount > 0 && answeredCount % 5 === 0 && (
-                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                  <div className="text-sm text-green-700 font-medium">
-                    🔄 Auto-refined after {answeredCount} answers
+              {refinePromptMutation.isPending && (
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                  <div className="text-sm text-blue-700 font-medium">
+                    🔄 Auto-refining your prompt...
                   </div>
                 </div>
               )}

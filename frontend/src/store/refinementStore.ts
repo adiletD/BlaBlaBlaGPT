@@ -22,6 +22,7 @@ interface RefinementState {
   isAutoSubmitting: boolean;
   answeredCount: number;
   autoRefinementCallback: (() => void) | null;
+  fetchQuestionsCallback: (() => void) | null;
 }
 
 interface RefinementActions {
@@ -30,6 +31,7 @@ interface RefinementActions {
   setSelectedProvider: (provider: string) => void;
   setSelectedModel: (model?: string) => void;
   setQuestions: (questions: Question[]) => void;
+  addQuestions: (questions: Question[]) => void;
   setAnswers: (answers: Answer[]) => void;
   addAnswer: (answer: Answer) => void;
   updateAnswer: (questionId: string, response: boolean | string) => void;
@@ -41,6 +43,7 @@ interface RefinementActions {
   setLLMError: (error: RefinementState['llmError']) => void;
   setAutoSubmitting: (autoSubmitting: boolean) => void;
   setAutoRefinementCallback: (callback: (() => void) | null) => void;
+  setFetchQuestionsCallback: (callback: (() => void) | null) => void;
   reset: () => void;
   initializeProvider: (defaultProvider: string) => void;
   validateAndUpdateModel: (availableModels: string[]) => void;
@@ -60,6 +63,7 @@ const initialState: RefinementState = {
   isAutoSubmitting: false,
   answeredCount: 0,
   autoRefinementCallback: null,
+  fetchQuestionsCallback: null,
 };
 
 export const useRefinementStore = create<RefinementState & RefinementActions>()(
@@ -71,13 +75,17 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       setSelectedProvider: (provider) => set({ selectedProvider: provider }),
       setSelectedModel: (model) => set({ selectedModel: model }),
       setQuestions: (questions) => set({ questions, answeredCount: 0 }),
+      addQuestions: (newQuestions) => 
+        set((state) => ({ 
+          questions: [...state.questions, ...newQuestions]
+        })),
       setAnswers: (answers) => set({ answers, answeredCount: 0 }),
       addAnswer: (answer) =>
         set((state) => ({
           answers: [...state.answers.filter((a) => a.questionId !== answer.questionId), answer],
         })),
       updateAnswer: (questionId, response) => {
-        const { answers, autoRefinementCallback } = get();
+        const { answers, autoRefinementCallback, fetchQuestionsCallback } = get();
         const existingAnswer = answers.find((a) => a.questionId === questionId);
         const isNewAnswer = !existingAnswer;
         
@@ -103,6 +111,14 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
             autoRefinementCallback();
           }, 1000); // Small delay for better UX
         }
+        
+        // Trigger fetch new questions every 6th answer starting from 2nd (2, 8, 14, 20...)
+        if (isNewAnswer && fetchQuestionsCallback && newAnsweredCount >= 2 && (newAnsweredCount - 2) % 6 === 0) {
+          console.log(`Fetching new questions after ${newAnsweredCount} answers`);
+          setTimeout(() => {
+            fetchQuestionsCallback();
+          }, 1500); // Slightly delayed after potential auto-refinement
+        }
       },
       setCurrentQuestionIndex: (index) => set({ currentQuestionIndex: index }),
       nextQuestion: () => {
@@ -122,6 +138,7 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       setLLMError: (llmError) => set({ llmError }),
       setAutoSubmitting: (autoSubmitting) => set({ isAutoSubmitting: autoSubmitting }),
       setAutoRefinementCallback: (callback) => set({ autoRefinementCallback: callback }),
+      setFetchQuestionsCallback: (callback) => set({ fetchQuestionsCallback: callback }),
       reset: () => set({ ...initialState }),
       initializeProvider: (defaultProvider) => {
         const { selectedProvider } = get();
