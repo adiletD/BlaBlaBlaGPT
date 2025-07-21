@@ -276,36 +276,8 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
         Skip to question
       </a>
       
-      {/* Progress Bar as Divider */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 top-0 h-full">
-        <div className="flex flex-col items-center space-y-2 pt-16 h-full" role="group" aria-label="Question progress indicators">
-          {questions.map((_, index) => (
-            <div key={index} className="flex flex-col items-center">
-              <button
-                onClick={() => setCurrentQuestionIndex(index)}
-                className={`w-4 h-4 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 ${
-                  index === currentQuestionIndex
-                    ? 'bg-black ring-2 ring-gray-300'
-                    : answers.find(a => a.questionId === questions[index].id)
-                    ? 'bg-gray-600'
-                    : 'bg-gray-300'
-                }`}
-                aria-label={`Go to question ${index + 1}${
-                  index === currentQuestionIndex ? ' (current)' : ''
-                }${
-                  answers.find(a => a.questionId === questions[index].id) ? ' (answered)' : ' (unanswered)'
-                }`}
-              />
-              {index < questions.length - 1 && (
-                <div className="w-px h-4 bg-gray-200 mt-1" aria-hidden="true" />
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Main Content */}
-      <div className="w-full pl-8">
+      <div className="w-full">
         {/* Stacked Question Cards */}
         <div className="space-y-4 h-auto" role="main" aria-live="polite">
           {stackedQuestions.map((item) => {
