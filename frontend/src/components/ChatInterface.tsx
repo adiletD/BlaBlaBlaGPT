@@ -412,12 +412,12 @@ export const ChatInterface: React.FC = () => {
   };
 
   const handleConfirmStartOver = () => {
-    reset();
+    reset(); // Store now preserves provider/model automatically
     setPrompt('');
     setIsEditingPrompt(false);
     setEditedPrompt('');
     setShowStartOverConfirm(false);
-    toast.success('Started over! All data cleared.');
+    toast.success('Started over! Provider and model settings preserved.');
   };
 
   const handleCancelStartOver = () => {
@@ -522,6 +522,13 @@ export const ChatInterface: React.FC = () => {
                     >
                       <FileText className="h-4 w-4" />
                     </button>
+                    <button
+                      onClick={handleStartOver}
+                      className="p-2 text-red-600 hover:text-red-800 transition-colors rounded-md border border-red-200 bg-red-50 hover:bg-red-100"
+                      title="Start over (reset everything)"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </button>
                   </>
                 ) : (
                   <div className="flex space-x-1">
@@ -596,19 +603,6 @@ export const ChatInterface: React.FC = () => {
                 </div>
               )}
 
-              {/* Start Over Section */}
-              {session && (
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={handleStartOver}
-                    className="w-full p-3 text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors rounded-lg border border-red-200 bg-white flex items-center justify-center gap-2"
-                    title="Reset everything and start over"
-                  >
-                    <RotateCcw className="h-4 w-4" />
-                    <span className="text-sm font-medium">Start Over</span>
-                  </button>
-                </div>
-              )}
             </div>
           ) : isEditingPrompt ? (
             <div className="flex-1 flex flex-col space-y-4">
@@ -770,7 +764,10 @@ export const ChatInterface: React.FC = () => {
                 <li>• Question history and answers</li>
                 <li>• Rollback history</li>
               </ul>
-              <p className="text-sm text-red-600 mt-3 font-medium">
+              <p className="text-sm text-green-600 mt-3">
+                ✓ Your provider and model settings will be preserved.
+              </p>
+              <p className="text-sm text-red-600 mt-1 font-medium">
                 This action cannot be undone.
               </p>
             </div>

@@ -161,7 +161,15 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
       setAutoSubmitting: (autoSubmitting) => set({ isAutoSubmitting: autoSubmitting }),
       setAutoRefinementCallback: (callback) => set({ autoRefinementCallback: callback }),
       setFetchQuestionsCallback: (callback) => set({ fetchQuestionsCallback: callback }),
-      reset: () => set({ ...initialState }),
+      reset: () => {
+        const { selectedProvider, selectedModel } = get();
+        set({ 
+          ...initialState,
+          // Preserve user's provider/model preferences
+          selectedProvider,
+          selectedModel
+        });
+      },
       initializeProvider: (defaultProvider) => {
         const { selectedProvider } = get();
         if (!selectedProvider) {
