@@ -2,6 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { RefinementSession, Question, Answer } from '../types';
 
+interface PromptVersion {
+  id: string;
+  content: string;
+  timestamp: string;
+  isManualSave: boolean;
+  versionNumber: number;
+  isSavedBaseline?: boolean; // Marks this as a saved checkpoint
+}
+
 interface RefinementState {
   session: RefinementSession | null;
   currentStep: 'input' | 'questions' | 'results';
@@ -23,6 +32,11 @@ interface RefinementState {
   answeredCount: number;
   autoRefinementCallback: (() => void) | null;
   fetchQuestionsCallback: (() => void) | null;
+  // New version management
+  promptVersions: PromptVersion[];
+  rollbackBuffer: PromptVersion[];
+  canRollback: boolean;
+  savedBaselineId: string | null; // ID of the current saved baseline version
 }
 
 interface RefinementActions {
@@ -47,6 +61,10 @@ interface RefinementActions {
   reset: () => void;
   initializeProvider: (defaultProvider: string) => void;
   validateAndUpdateModel: (availableModels: string[]) => void;
+  // New version management actions
+  savePromptVersion: (isManualSave?: boolean) => void;
+  rollbackToPrevious: () => boolean;
+  addToRollbackBuffer: (version: PromptVersion) => void;
 }
 
 const initialState: RefinementState = {
@@ -64,6 +82,10 @@ const initialState: RefinementState = {
   answeredCount: 0,
   autoRefinementCallback: null,
   fetchQuestionsCallback: null,
+  promptVersions: [],
+  rollbackBuffer: [],
+  canRollback: false,
+  savedBaselineId: null,
 };
 
 export const useRefinementStore = create<RefinementState & RefinementActions>()(
@@ -157,6 +179,62 @@ export const useRefinementStore = create<RefinementState & RefinementActions>()(
             set({ selectedModel: newModel });
           }
         }
+      },
+      savePromptVersion: (isManualSave = true) => {
+        const { session, promptVersions } = get();
+        const latestPrompt = session?.refinedPrompt || session?.originalPrompt;
+        
+        if (latestPrompt && session) {
+          const newVersionId = `version_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          const newVersion: PromptVersion = {
+            id: newVersionId,
+            content: latestPrompt,
+            timestamp: new Date().toISOString(),
+            isManualSave,
+            versionNumber: promptVersions.length + 1, // v1, v2, v3...
+            isSavedBaseline: false // Not changing the baseline, just saving a snapshot
+          };
+          
+          // Just add to the saved versions list - don't change the current prompt
+          set((state) => ({
+            promptVersions: [newVersion, ...state.promptVersions] // Latest at top
+          }));
+        }
+      },
+      addToRollbackBuffer: (version) => {
+        const maxBufferSize = 10;
+        set((state) => {
+          const newBuffer = [...state.rollbackBuffer, version].slice(-maxBufferSize);
+          return {
+            rollbackBuffer: newBuffer,
+            canRollback: newBuffer.length > 0
+          };
+        });
+      },
+      rollbackToPrevious: () => {
+        const { rollbackBuffer, session } = get();
+        
+        if (rollbackBuffer.length === 0 || !session) {
+          return false;
+        }
+        
+        const previousVersion = rollbackBuffer[rollbackBuffer.length - 1];
+        const newBuffer = rollbackBuffer.slice(0, -1);
+        
+        // Update session with the previous version
+        const updatedSession = {
+          ...session,
+          refinedPrompt: previousVersion.content,
+          updatedAt: new Date()
+        };
+        
+        set({
+          session: updatedSession,
+          rollbackBuffer: newBuffer,
+          canRollback: newBuffer.length > 0
+        });
+        
+        return true;
       },
     }),
     {

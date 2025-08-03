@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Send, Loader2, Copy, Edit3, Save, X } from 'lucide-react';
+import { Send, Loader2, Copy, Edit3, Save, X, Download, FileText, Bookmark, Undo } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { apiService } from '../services/api';
 import { useRefinementStore } from '../store/refinementStore';
@@ -24,6 +24,8 @@ export const ChatInterface: React.FC = () => {
     selectedModel,
     llmError,
     answeredCount,
+    canRollback,
+    promptVersions,
     setSession,
     setQuestions,
     addQuestions,
@@ -33,7 +35,10 @@ export const ChatInterface: React.FC = () => {
     isAutoSubmitting,
     setAutoSubmitting,
     setAutoRefinementCallback,
-    setFetchQuestionsCallback
+    setFetchQuestionsCallback,
+    savePromptVersion,
+    rollbackToPrevious,
+    addToRollbackBuffer
   } = useRefinementStore();
 
   const createSessionMutation = useMutation({
@@ -133,6 +138,19 @@ export const ChatInterface: React.FC = () => {
     mutationFn: async () => {
       if (!session) throw new Error('No session found');
       if (!selectedProvider) throw new Error('No provider selected');
+      
+      // Add current version to rollback buffer before refining
+      const currentPrompt = session.refinedPrompt || session.originalPrompt;
+      if (currentPrompt) {
+        const currentVersion = {
+          id: `rollback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          content: currentPrompt,
+          timestamp: new Date().toISOString(),
+          isManualSave: false,
+          versionNumber: 0 // Rollback versions don't need version numbers
+        };
+        addToRollbackBuffer(currentVersion);
+      }
       
       console.log('Refining prompt with:', { 
         sessionId: session.id, 
@@ -297,12 +315,19 @@ export const ChatInterface: React.FC = () => {
 
   const handleEditPrompt = () => {
     setIsEditingPrompt(true);
-    setEditedPrompt(session?.originalPrompt || '');
+    // Edit the latest version (refined or original if no refinement exists)
+    const latestPrompt = session?.refinedPrompt || session?.originalPrompt || '';
+    setEditedPrompt(latestPrompt);
   };
 
   const handleSavePrompt = () => {
     if (session) {
-      setSession({ ...session, originalPrompt: editedPrompt });
+      // Save the edited content as the new refined prompt (latest version)
+      setSession({ 
+        ...session, 
+        refinedPrompt: editedPrompt,
+        updatedAt: new Date()
+      });
       setIsEditingPrompt(false);
       toast.success('Prompt updated!');
     }
@@ -310,13 +335,73 @@ export const ChatInterface: React.FC = () => {
 
   const handleCancelEdit = () => {
     setIsEditingPrompt(false);
-    setEditedPrompt(session?.originalPrompt || '');
+    // Reset to the latest version (what we were editing)
+    const latestPrompt = session?.refinedPrompt || session?.originalPrompt || '';
+    setEditedPrompt(latestPrompt);
   };
 
   const handleCopyPrompt = () => {
-    if (session?.originalPrompt) {
-      navigator.clipboard.writeText(session.originalPrompt);
+    // Copy the latest version (refined or original if no refinement exists)
+    const latestPrompt = session?.refinedPrompt || session?.originalPrompt;
+    if (latestPrompt) {
+      navigator.clipboard.writeText(latestPrompt);
       toast.success('Prompt copied to clipboard!');
+    }
+  };
+
+  const generateFilename = (extension: string) => {
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    return `prompt_refined_${timestamp}.${extension}`;
+  };
+
+  const downloadFile = (content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadMarkdown = () => {
+    const latestPrompt = session?.refinedPrompt || session?.originalPrompt;
+    if (latestPrompt) {
+      // Format as markdown with heading and content
+      const markdownContent = `# Refined Prompt\n\n${latestPrompt}\n\n---\n\n*Generated on ${new Date().toLocaleDateString()} using BlaBlaBlaGPT*`;
+      const filename = generateFilename('md');
+      downloadFile(markdownContent, filename, 'text/markdown');
+      toast.success('Markdown file downloaded!');
+    }
+  };
+
+  const handleDownloadText = () => {
+    const latestPrompt = session?.refinedPrompt || session?.originalPrompt;
+    if (latestPrompt) {
+      const filename = generateFilename('txt');
+      downloadFile(latestPrompt, filename, 'text/plain');
+      toast.success('Text file downloaded!');
+    }
+  };
+
+  const handleSaveVersion = () => {
+    const latestPrompt = session?.refinedPrompt || session?.originalPrompt;
+    if (latestPrompt && session) {
+      const versionNumber = promptVersions.length + 1;
+      savePromptVersion(true);
+      toast.success(`Prompt saved as v${versionNumber}!`);
+    }
+  };
+
+  const handleRollback = () => {
+    const success = rollbackToPrevious();
+    if (success) {
+      toast.success('Rolled back to previous version!');
+    } else {
+      toast.error('No previous version to rollback to');
     }
   };
 
@@ -377,13 +462,48 @@ export const ChatInterface: React.FC = () => {
                   <Copy className="h-4 w-4" />
                 </button>
                 {!isEditingPrompt ? (
-                  <button
-                    onClick={handleEditPrompt}
-                    className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
-                    title="Edit prompt"
-                  >
-                    <Edit3 className="h-4 w-4" />
-                  </button>
+                  <>
+                    <button
+                      onClick={handleEditPrompt}
+                      className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
+                      title="Edit prompt"
+                    >
+                      <Edit3 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleSaveVersion}
+                      className="p-2 text-blue-600 hover:text-blue-800 transition-colors rounded-md border border-blue-100 bg-blue-50 hover:bg-blue-100"
+                      title="Save current version"
+                    >
+                      <Bookmark className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleRollback}
+                      disabled={!canRollback}
+                      className={`p-2 transition-colors rounded-md border ${
+                        canRollback 
+                          ? 'text-orange-600 hover:text-orange-800 border-orange-100 bg-orange-50 hover:bg-orange-100' 
+                          : 'text-gray-400 border-gray-100 bg-gray-50 cursor-not-allowed'
+                      }`}
+                      title={canRollback ? "Rollback to previous version" : "No previous version available"}
+                    >
+                      <Undo className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleDownloadMarkdown}
+                      className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
+                      title="Download as Markdown"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleDownloadText}
+                      className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
+                      title="Download as Text"
+                    >
+                      <FileText className="h-4 w-4" />
+                    </button>
+                  </>
                 ) : (
                   <div className="flex space-x-1">
                     <button
@@ -434,6 +554,28 @@ export const ChatInterface: React.FC = () => {
                   {session.originalPrompt}
                 </p>
               </div>
+
+              {/* Saved Prompts Section */}
+              {promptVersions.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-600 mb-3">💾 Saved Prompts</h4>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {promptVersions.map((version) => (
+                      <div key={version.id} className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-blue-700 font-medium text-sm">v{version.versionNumber}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(version.timestamp).toLocaleDateString()} {new Date(version.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 text-sm whitespace-pre-wrap line-clamp-3">
+                          {version.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : isEditingPrompt ? (
             <div className="flex-1 flex flex-col space-y-4">
