@@ -137,6 +137,7 @@ export const apiService = {
   async getProviders(): Promise<LLMProvider[]> {
     try {
       const response = await api.get<ApiResponse<LLMProvider[]>>('/providers');
+      console.log("providers", response.data.data);
       return response.data.data || [];
     } catch (error: any) {
       console.error('Failed to fetch providers:', error);
