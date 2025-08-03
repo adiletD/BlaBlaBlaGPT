@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Send, Loader2, Copy, Edit3, Save, X, Download, FileText, Bookmark, Undo } from 'lucide-react';
+import { Send, Loader2, Copy, Edit3, Save, X, Download, FileText, Bookmark, Undo, RotateCcw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { apiService } from '../services/api';
 import { useRefinementStore } from '../store/refinementStore';
@@ -13,6 +13,7 @@ export const ChatInterface: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [isEditingPrompt, setIsEditingPrompt] = useState(false);
   const [editedPrompt, setEditedPrompt] = useState('');
+  const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
   const [providers, setProviders] = useState<Array<{ id: string; name: string; isAvailable: boolean }>>([]);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -38,7 +39,8 @@ export const ChatInterface: React.FC = () => {
     setFetchQuestionsCallback,
     savePromptVersion,
     rollbackToPrevious,
-    addToRollbackBuffer
+    addToRollbackBuffer,
+    reset
   } = useRefinementStore();
 
   const createSessionMutation = useMutation({
@@ -405,6 +407,23 @@ export const ChatInterface: React.FC = () => {
     }
   };
 
+  const handleStartOver = () => {
+    setShowStartOverConfirm(true);
+  };
+
+  const handleConfirmStartOver = () => {
+    reset();
+    setPrompt('');
+    setIsEditingPrompt(false);
+    setEditedPrompt('');
+    setShowStartOverConfirm(false);
+    toast.success('Started over! All data cleared.');
+  };
+
+  const handleCancelStartOver = () => {
+    setShowStartOverConfirm(false);
+  };
+
   const handleAutoSubmit = () => {
     refinePromptMutation.mutate();
   };
@@ -576,6 +595,20 @@ export const ChatInterface: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* Start Over Section */}
+              {session && (
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <button
+                    onClick={handleStartOver}
+                    className="w-full p-3 text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors rounded-lg border border-red-200 bg-white flex items-center justify-center gap-2"
+                    title="Reset everything and start over"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    <span className="text-sm font-medium">Start Over</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : isEditingPrompt ? (
             <div className="flex-1 flex flex-col space-y-4">
@@ -712,6 +745,53 @@ export const ChatInterface: React.FC = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Start Over Confirmation Modal */}
+      {showStartOverConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <RotateCcw className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Start Over?</h3>
+                <p className="text-sm text-gray-600">This will reset everything</p>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-700 text-sm mb-3">
+                This will permanently delete:
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1 ml-4">
+                <li>• Current prompt and all refinements</li>
+                <li>• All saved prompt versions</li>
+                <li>• Question history and answers</li>
+                <li>• Rollback history</li>
+              </ul>
+              <p className="text-sm text-red-600 mt-3 font-medium">
+                This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelStartOver}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmStartOver}
+                className="flex-1 px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              >
+                Start Over
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* LLM Error Modal */}
       {llmError && (
