@@ -320,7 +320,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
                 {/* Answer Options - Only interactive for current question */}
                 <div className="space-y-4">
-                  <fieldset className="flex flex-wrap justify-center gap-2">
+                  <fieldset className="grid grid-cols-3 gap-2 max-w-2xl mx-auto">
                     <legend className="sr-only">Choose from the available options for question {index + 1}</legend>
                     {question.options && question.options.map((option, optionIndex) => {
                       const isSelected = questionAnswer?.response === option;
@@ -342,14 +342,16 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
                           key={option}
                           onClick={() => isActive ? handleAnswer(option) : undefined}
                           disabled={!isActive}
-                          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${getButtonStyles()} ${isActive ? 'transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-300' : 'cursor-default'}`}
+                          className={`px-2 py-3 text-xs font-medium rounded-md transition-all duration-200 ${getButtonStyles()} ${isActive ? 'transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-300' : 'cursor-default'} min-h-[3rem] flex items-center justify-center text-center leading-tight`}
                           aria-pressed={isSelected}
                           tabIndex={isActive ? 0 : -1}
                         >
-                          {option}
-                          {isDefault && !isSelected && isActive && (
-                            <span className="ml-1 text-xs opacity-75">(default)</span>
-                          )}
+                          <span className="break-words hyphens-auto">
+                            {option}
+                            {isDefault && !isSelected && isActive && (
+                              <span className="block text-xs opacity-75 mt-1">(default)</span>
+                            )}
+                          </span>
                         </button>
                       );
                     })}
