@@ -320,7 +320,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
 
                 {/* Answer Options - Only interactive for current question */}
                 <div className="space-y-4">
-                  <fieldset className="flex justify-center space-x-2">
+                  <fieldset className="flex flex-wrap justify-center gap-2">
                     <legend className="sr-only">Choose from the available options for question {index + 1}</legend>
                     {question.options && question.options.map((option, optionIndex) => {
                       const isSelected = questionAnswer?.response === option;
@@ -359,7 +359,7 @@ export const SingleQuestionView: React.FC<SingleQuestionViewProps> = ({ classNam
                   {isActive && showCustomInput && (
                     <div className="max-w-xs mx-auto">
                       <form onSubmit={handleCustomSubmit} role="form">
-                        <div className="flex space-x-2">
+                        <div className="flex gap-2">
                           <input
                             ref={customInputRef}
                             type="text"

@@ -472,7 +472,7 @@ export const ChatInterface: React.FC = () => {
               </div>
             )}
             {session && (
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={handleCopyPrompt}
                   className="p-2 text-gray-600 hover:text-black transition-colors rounded-md border border-gray-100 bg-white hover:bg-gray-50"
@@ -531,7 +531,7 @@ export const ChatInterface: React.FC = () => {
                     </button>
                   </>
                 ) : (
-                  <div className="flex space-x-1">
+                  <div className="flex gap-2">
                     <button
                       onClick={handleSavePrompt}
                       className="p-2 text-green-700 hover:text-green-800 transition-colors rounded-md border border-green-100 bg-green-50 hover:bg-green-100"

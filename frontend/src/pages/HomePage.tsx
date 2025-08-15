@@ -110,28 +110,30 @@ export const HomePage: React.FC = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-3 lg:py-0 lg:h-16 gap-3 lg:gap-0">
             <div className="flex items-center space-x-2">
               <Sparkles className="h-8 w-8 text-primary-600" />
               <h1 className="text-xl font-bold text-gray-900">BlaBlaBlaGPT</h1>
             </div>
             
             {/* Provider selector and test button in header */}
-            <div className="flex items-center space-x-4">
-              <ProviderSelector
-                providers={providers}
-                selectedProvider={selectedProvider}
-                selectedModel={selectedModel}
-                onProviderChange={setSelectedProvider}
-                onModelChange={setSelectedModel}
-                disabled={providersLoading}
-              />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <div className="w-full sm:w-auto">
+                <ProviderSelector
+                  providers={providers}
+                  selectedProvider={selectedProvider}
+                  selectedModel={selectedModel}
+                  onProviderChange={setSelectedProvider}
+                  onModelChange={setSelectedModel}
+                  disabled={providersLoading}
+                />
+              </div>
               
               {/* Test API Button */}
               <button
                 onClick={handleTestApi}
                 disabled={isTestingApi || !selectedProvider}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap w-full sm:w-auto justify-center sm:justify-start"
               >
                 {isTestingApi ? (
                   <>

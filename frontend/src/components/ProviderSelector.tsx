@@ -59,19 +59,19 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
   }
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
       <div className="flex items-center space-x-2">
         <Zap className="h-4 w-4 text-primary-600" />
-        <span className="text-sm font-medium text-gray-700">Provider:</span>
+        <span className="text-sm font-medium text-gray-700 hidden sm:inline">Provider:</span>
       </div>
       
-      <div className="flex items-center space-x-2">
-        <div className="relative">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+        <div className="relative w-full sm:w-auto min-w-[120px]">
           <select
             value={selectedProvider}
             onChange={handleProviderChange}
             disabled={disabled}
-            className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed w-full"
           >
             <option value="">Select provider...</option>
             {providers
@@ -87,12 +87,12 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
 
         {/* Model selector */}
         {currentProvider && availableModels.length > 0 && (
-          <div className="relative">
+          <div className="relative w-full sm:w-auto min-w-[160px]">
             <select
               value={selectedModel || ''}
               onChange={handleModelChange}
               disabled={disabled}
-              className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed w-full"
             >
               <option value="">Select model...</option>
               {availableModels.map((model) => (
@@ -110,7 +110,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
       {currentProvider && (
         <div className="flex items-center space-x-1">
           <div className={`w-2 h-2 rounded-full ${currentProvider.isAvailable ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 hidden sm:inline">
             {currentProvider.isAvailable ? 'Available' : 'Unavailable'}
           </span>
         </div>
