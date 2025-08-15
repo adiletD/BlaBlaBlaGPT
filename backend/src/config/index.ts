@@ -92,8 +92,8 @@ export const PROVIDER_CONFIGS: Record<LLMProviderType, ProviderConfig> = {
     baseUrl: 'https://api.groq.com/openai/v1',
     supportedModels: [
       'llama-3.3-70b-versatile',
-      'llama-4-scout',
-      'kimi-k2',
+      'meta-llama/llama-4-scout-17b-16e-instruct',
+      'moonshotai/kimi-k2-instruct',
       'gemma2-9b-it',
       'llama-3.1-8b-instant',
       'llama-3.1-70b-versatile',
