@@ -24,15 +24,15 @@ export class LLMProviderFactory {
     console.log('inside initializeProviders');
 
     // Initialize OpenAI provider
-    if (config.llmProviders.openai?.apiKey) {
-      this.providers.set('openai', new OpenAIProvider());
-    }
+    // if (config.llmProviders.openai?.apiKey) {
+    //   this.providers.set('openai', new OpenAIProvider());
+    // }
 
     // Initialize Anthropic provider
-    if (config.llmProviders.anthropic?.apiKey) {
-      console.log('anthropic provider is initialized');
-      this.providers.set('anthropic', new AnthropicProvider());
-    }
+    // if (config.llmProviders.anthropic?.apiKey) {
+    //   console.log('anthropic provider is initialized');
+    //   this.providers.set('anthropic', new AnthropicProvider());
+    // }
 
     // Initialize Groq provider
     if (config.llmProviders.groq?.apiKey) {

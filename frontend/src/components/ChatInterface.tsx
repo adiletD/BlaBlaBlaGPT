@@ -121,7 +121,7 @@ export const ChatInterface: React.FC = () => {
       
       return apiService.generateQuestions(
         session.refinedPrompt || session.originalPrompt,
-        selectedProvider || 'anthropic',
+        selectedProvider || 'groq',
         selectedModel
       );
     },

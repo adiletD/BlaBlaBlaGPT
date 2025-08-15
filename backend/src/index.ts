@@ -8,6 +8,7 @@ import promptRoutes from './routes/prompts';
 import providerRoutes from './routes/providers';
 import questionRoutes from './routes/questions';
 import config from './config';
+import { llmProviderFactory } from './providers';
 
 const app = express();
 
@@ -71,9 +72,7 @@ app.listen(PORT, () => {
   console.log(`🔗 CORS origin: ${config.corsOrigin}`);
   
   // Log available providers
-  const availableProviders = Object.entries(config.llmProviders)
-    .filter(([, provider]) => provider)
-    .map(([name]) => name);
+  const availableProviders = llmProviderFactory.getProviderNames();
   
   console.log(`🤖 Available LLM providers: ${availableProviders.join(', ')}`);
 });

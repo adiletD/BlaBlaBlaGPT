@@ -279,7 +279,7 @@ export const apiService = {
   },
 
   // Test API endpoint - Direct API call to test providers
-  async testApi(provider: string = 'anthropic', model: string = 'claude-3-5-sonnet-20240620'): Promise<any> {
+  async testApi(provider: string = 'groq', model: string = 'llama-3.3-70b-versatile'): Promise<any> {
     try {
       console.log(`Testing API with provider: ${provider}, model: ${model}`);
       const response = await api.post<ApiResponse<any>>('/prompts/test-api', {

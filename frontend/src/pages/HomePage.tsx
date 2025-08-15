@@ -86,7 +86,7 @@ export const HomePage: React.FC = () => {
     setShowTestResult(false);
 
     try {
-      const result = await apiService.testApi(selectedProvider || 'anthropic', selectedModel);
+      const result = await apiService.testApi(selectedProvider || 'groq', selectedModel);
       setTestResult(result);
       setShowTestResult(true);
       console.log('Test API Result:', result);
